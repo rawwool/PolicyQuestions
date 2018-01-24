@@ -30,8 +30,9 @@
         {
             this.labelQuestion = new System.Windows.Forms.Label();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.panelResponse = new System.Windows.Forms.Panel();
             this.labelReference = new System.Windows.Forms.LinkLabel();
+            this.panelResponse = new System.Windows.Forms.Panel();
+            this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -55,27 +56,17 @@
             this.flowLayoutPanel1.Controls.Add(this.labelReference);
             this.flowLayoutPanel1.Controls.Add(this.labelQuestion);
             this.flowLayoutPanel1.Controls.Add(this.panelResponse);
+            this.flowLayoutPanel1.Controls.Add(this.flowLayoutPanel2);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(2);
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(600, 81);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(600, 54);
             this.flowLayoutPanel1.TabIndex = 2;
             this.flowLayoutPanel1.WrapContents = false;
             this.flowLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.flowLayoutPanel1_Paint);
-            // 
-            // panelResponse
-            // 
-            this.panelResponse.AutoSize = true;
-            this.panelResponse.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.panelResponse.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelResponse.Location = new System.Drawing.Point(6, 42);
-            this.panelResponse.Margin = new System.Windows.Forms.Padding(4);
-            this.panelResponse.Name = "panelResponse";
-            this.panelResponse.Size = new System.Drawing.Size(68, 0);
-            this.panelResponse.TabIndex = 2;
             // 
             // labelReference
             // 
@@ -88,6 +79,28 @@
             this.labelReference.Text = "Ref";
             this.labelReference.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.labelReference_LinkClicked);
             // 
+            // panelResponse
+            // 
+            this.panelResponse.AutoSize = true;
+            this.panelResponse.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panelResponse.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelResponse.Location = new System.Drawing.Point(6, 42);
+            this.panelResponse.Margin = new System.Windows.Forms.Padding(4);
+            this.panelResponse.Name = "panelResponse";
+            this.panelResponse.Size = new System.Drawing.Size(68, 0);
+            this.panelResponse.TabIndex = 2;
+            // 
+            // flowLayoutPanel2
+            // 
+            this.flowLayoutPanel2.AutoSize = true;
+            this.flowLayoutPanel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(27, 49);
+            this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(25, 3, 3, 3);
+            this.flowLayoutPanel2.Name = "flowLayoutPanel2";
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(48, 0);
+            this.flowLayoutPanel2.TabIndex = 5;
+            // 
             // QuestionControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
@@ -97,9 +110,10 @@
             this.Controls.Add(this.flowLayoutPanel1);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F);
             this.Margin = new System.Windows.Forms.Padding(4);
-            this.MinimumSize = new System.Drawing.Size(10, 0);
+            this.MaximumSize = new System.Drawing.Size(600, 0);
+            this.MinimumSize = new System.Drawing.Size(600, 0);
             this.Name = "QuestionControl";
-            this.Size = new System.Drawing.Size(600, 81);
+            this.Size = new System.Drawing.Size(600, 54);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
@@ -112,5 +126,6 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Panel panelResponse;
         private System.Windows.Forms.LinkLabel labelReference;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
     }
 }

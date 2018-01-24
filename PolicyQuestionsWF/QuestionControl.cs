@@ -36,6 +36,27 @@ namespace PolicyQuestionsWF
             textBox1.Height = h;
         }
 
+        public Action<string> Changed;
+
+        public void ResponseChanged(string value)
+        {
+            if (Changed != null)
+            {
+                Changed.Invoke(value);
+            }
+            _Question.UserResponse = value;
+            this.flowLayoutPanel2.Controls.Clear();
+            _Question.Children.ForEach(s =>
+            {
+                if (s.InvokeThisQuestion())
+                {
+                    QuestionControl control = new QuestionControl();
+                    control.SetQuestion(s);
+                    this.flowLayoutPanel2.Controls.Add(control);
+                }
+            });
+        }
+
         public void SetQuestion(Question question)
         {
             this.SuspendLayout();
@@ -47,7 +68,17 @@ namespace PolicyQuestionsWF
             this.panelResponse.Controls.Clear();
             ResponsePicker responsePicker = new ResponsePicker();
             responsePicker.SetResponseDataCaptureType(question.DataCaptureType, question.ResponseChoices);
+            responsePicker.Changed = ResponseChanged;
             this.panelResponse.Controls.Add(responsePicker);
+            question.Children.ForEach(s =>
+            {
+                if (s.InvokeThisQuestion())
+                {
+                    QuestionControl control = new QuestionControl();
+                    control.SetQuestion(s);
+                    this.flowLayoutPanel2.Controls.Add(control);
+                }
+            });
             this.Dock = DockStyle.Fill;
             //this.Height = flowLayoutPanel1.DisplayRectangle.Height + 20 + this.Padding.Bottom + this.Padding.Top + this.Margin.Top + this.Margin.Bottom;
             this.ResumeLayout();

@@ -26,11 +26,13 @@ namespace Questions.Utility
             }
             else return null;
         }
+
         public static Question GetNextQuestion()
         {
             _CurrentQuestion = GetNextQuestionPrivate();
             return _CurrentQuestion;
         }
+
         private static Question GetNextQuestionPrivate()
         {
             if (_Questions == null) return null;

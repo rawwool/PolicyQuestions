@@ -32,11 +32,15 @@ namespace Questions.Model
             Children = new List<Question>();
         }
 
-        internal bool InvokeThisQuestion()
+        public bool InvokeThisQuestion()
         {
             if (Parent == null) return true;
-            if (UserResponse == null && ParentResponseForInvokingThisChildQuestion == null) return true;
-            return this.UserResponse == ParentResponseForInvokingThisChildQuestion;
+            if (ParentResponseForInvokingThisChildQuestion == null) return true;
+            if (Fuzzy.GetBestMatch(new string[] { "NA", "N/A", "Not applicable" }, ParentResponseForInvokingThisChildQuestion) != null)
+                return true;
+
+            if (Parent.UserResponse == null && ParentResponseForInvokingThisChildQuestion == null) return true;
+            return Fuzzy.AreSame(Parent.UserResponse, ParentResponseForInvokingThisChildQuestion);
         }
 
         public override string ToString()

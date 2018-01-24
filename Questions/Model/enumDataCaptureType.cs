@@ -8,11 +8,13 @@ namespace Questions.Model
         RadioButton,
         [Description("Drop down, Combo")]
         DropDown,
-        [Description("Text box")]
+        [Description("Text box, UK Postcode, house number")]
         TextBox,
         [Description("Date, Calendar")]
         DateTimePicker,
         [Description("Text box & not sure button")]
-        TextBoxAndNotSureCheckBox
+        TextBoxAndNotSureCheckBox,
+        [Description("N/A, NA, Not applicable")]
+        NoDataCapture
     }
 }

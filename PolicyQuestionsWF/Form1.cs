@@ -69,7 +69,7 @@ namespace PolicyQuestionsWF
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     Questions.Utility.Questions.LoadQuestions(Path.Combine(Environment.CurrentDirectory, /*"Questions.xlsx"*/ofd.FileName), new string[]
-                    { "About you", "Important questions ", "About your home", "About your cover"});
+                    { "About you"/*, "Important questions ", "About your home", "About your cover"*/});
                     
                     LoadQuestions("About you");
                 }

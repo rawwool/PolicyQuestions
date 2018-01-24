@@ -20,9 +20,9 @@ namespace PolicyQuestions
             //    Console.WriteLine(question);
             //    question = Questions.Utility.Questions.GetNextQuestion();
             //}
-            string[] source = { "Radio", "Radio button", "Button", "Drop down", "Combo", "Text box", "Date", "Calendar", "Text box & not sure button" };
+            string[] source = { "Radio", "Radio button", "Button", "Drop down", "Combo", "Text box", "Date", "Calendar", "Text box & not sure button", "N/A, NA" };
 
-            string match = Fuzzy.GetBestMatch(source, "");
+            string match = Fuzzy.GetBestMatch(source, "N/A");
         }
     }
 }

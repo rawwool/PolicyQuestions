@@ -18,6 +18,8 @@ namespace PolicyQuestionsWF
             InitializeComponent();
         }
 
+        public Action<string> Changed;
+
         public void SetResponseDataCaptureType(enumDataCaptureType type, IEnumerable<string> possibleResponses)
         {
             this.AutoSize = true;
@@ -25,18 +27,21 @@ namespace PolicyQuestionsWF
             {
                 case enumDataCaptureType.DateTimePicker:
                     DateTimePicker picker = new DateTimePicker();
+                    picker.ValueChanged += Picker_ValueChanged;
                     this.flowLayoutPanel1.Controls.Add(picker);
                     break;
                 case enumDataCaptureType.TextBox:
                     var textBox = new TextBox();
                     textBox.Multiline = true;
-                    
+                    textBox.Width = 500;
+                    textBox.TextChanged += TextBox_TextChanged;
                     this.flowLayoutPanel1.Controls.Add(textBox);
                     break;
                 case enumDataCaptureType.DropDown:
                     var combo = new ComboBox();
                     combo.DropDownStyle = ComboBoxStyle.DropDownList;
                     combo.DataSource = possibleResponses;
+                    combo.SelectedValueChanged += Combo_SelectedValueChanged;
                     this.flowLayoutPanel1.Controls.Add(combo);
                     break;
                 case enumDataCaptureType.RadioButton:
@@ -52,6 +57,7 @@ namespace PolicyQuestionsWF
                         rb.Margin = new Padding(2);
                         //rb.BackColor = Color.Red;
                         rb.Text = s;
+                        rb.CheckedChanged += Rb_CheckedChanged;
                         this.flowLayoutPanel1.Controls.Add(rb);
                     });
                     break;
@@ -65,6 +71,40 @@ namespace PolicyQuestionsWF
                     this.flowLayoutPanel1.Controls.Add(checkBox);
 
                     break;
+                case enumDataCaptureType.NoDataCapture:
+                    break;
+            }
+        }
+
+        private void Rb_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Changed != null && (sender as RadioButton).Checked)
+            {
+                Changed.Invoke((sender as RadioButton).Text.ToString());
+            }
+        }
+
+        private void Combo_SelectedValueChanged(object sender, EventArgs e)
+        {
+            if (Changed != null)
+            {
+                Changed.Invoke((sender as ComboBox).SelectedValue.ToString());
+            }
+        }
+
+        private void TextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (Changed != null)
+            {
+                Changed.Invoke((sender as TextBox).Text);
+            }
+        }
+
+        private void Picker_ValueChanged(object sender, EventArgs e)
+        {
+            if (Changed != null)
+            {
+                Changed.Invoke((sender as DateTimePicker).Value.ToString());
             }
         }
     }

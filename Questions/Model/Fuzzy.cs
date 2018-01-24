@@ -88,6 +88,12 @@ namespace Questions.Model
             return (result > threshold) ? int.MaxValue : result;
         }
 
+        internal static bool AreSame(string userResponse, string parentResponseForInvokingThisChildQuestion)
+        {
+            if (userResponse == null || parentResponseForInvokingThisChildQuestion == null) return false;
+            return GetBestMatch( new string[]{ userResponse }, parentResponseForInvokingThisChildQuestion) != null;
+        }
+
         public static int DamerauLevenshteinDistanceOnePrefix(string source, string target, int threshold)
         {
             if (source[0] == target[0])

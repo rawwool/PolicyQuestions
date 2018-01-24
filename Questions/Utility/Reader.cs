@@ -74,31 +74,35 @@ namespace Questions.Utility
             int answersColumnIndex = GetColumnIndex(columns, "Answers");
             int referenceColumnIndex = GetColumnIndex(columns, "Question Ref");
             int mandatoryOptionalColumnIndex = GetColumnIndex(columns, "Field Display");
-            int answerColumnIndex = GetColumnIndex(columns, "Answers ");
+            int displayRuleColumnIndex = GetColumnIndex(columns, "Field Display Rule");
             int dataTypeColumnIndex = GetColumnIndex(columns, "Data Type (Hiscox UI)");
             int helpColumnIndex = GetColumnIndex(columns, "Help copy");
             int questionTextColumnIndex = GetColumnIndex(columns, "Question Text");
-            int subQuestionTextColumnIndex = GetColumnIndex(columns, "Question Text");
+            int subQuestionTextColumnIndex = GetColumnIndex(columns, "sub-Question");
             Question parentQuestion = null;
             for (int i = 2; i <= rowCount; i++)
             {
                 var reference = GetValue(xlRange, i, referenceColumnIndex);
-                if (string.IsNullOrWhiteSpace(reference)) continue;
+                string questionText = GetValue(xlRange, i, questionTextColumnIndex);
+                string subQuestionText = GetValue(xlRange, i, subQuestionTextColumnIndex);
+                if (string.IsNullOrWhiteSpace(reference) 
+                    && string.IsNullOrWhiteSpace(questionText)
+                    && string.IsNullOrWhiteSpace(subQuestionText)) continue;
                 Question question = new Question
                 {
                     Category = xlWorksheet.Name,
                     Ref = reference,
                     Type = ConvertToType<enumType>(GetValue(xlRange, i, mandatoryOptionalColumnIndex)),
-                    ParentResponseForInvokingThisChildQuestion = GetParentResponseForInvokingThisChildQuestion(GetValue(xlRange, i, answerColumnIndex)),
+                    ParentResponseForInvokingThisChildQuestion = GetParentResponseForInvokingThisChildQuestion(GetValue(xlRange, i, displayRuleColumnIndex)),
                     DataCaptureType = ConvertToType<enumDataCaptureType>(GetValue(xlRange, i, dataTypeColumnIndex)),
                     HelpText = GetValue(xlRange, i, helpColumnIndex),
                     ResponseChoices = GetValue(xlRange, i, answersColumnIndex).Split('\n').Where(s => s.Trim().Length > 0).ToList()
                 };
 
-                question.Text = GetValue(xlRange, i, questionTextColumnIndex);
+                question.Text = questionText;
                 if (string.IsNullOrEmpty(question.Text.Trim()))
                 {
-                    question.Text = GetValue(xlRange, i, subQuestionTextColumnIndex);
+                    question.Text = subQuestionText;
                     question.Parent = parentQuestion;
                     parentQuestion.Children.Add(question);
                 }
