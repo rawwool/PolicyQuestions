@@ -176,20 +176,29 @@ namespace Questions.Utility
             //\w* *is *"([^\"]*)"
             bool positive = true;
             var result = from Match match in Regex.Matches(line, "\\w* *is *\"([^\"]*)\"")
-                         select match.ToString().Trim().Trim('"').Trim();
+                         select match.ToString().Trim();
             if (result.FirstOrDefault() == null)
             {
                 positive = false;
                 // Check for Is Not
                 result = from Match match in Regex.Matches(line, "\\w* *is *not *\"([^\"]*)\"")
-                         select match.ToString().Replace("not", "").Trim().Trim('"').Trim();
+                         select match.ToString().Replace("not", "").Trim();
             }
             Tuple<Question, string, bool, string> returnResult =
             result.Select(s=> 
             {
                 var t=  s.Split(' ');
+                Match response = Regex.Match(s, "\"([^\"]*)\"");
                 Question question = listOfQuestions.FirstOrDefault(f => f.Ref.Trim() == t.First());
-                return new Tuple<Question, string, bool, string>(question, t.Last().Trim().Trim('"').Trim(), positive, line);
+
+                if (response.Success)
+                {
+                    return new Tuple<Question, string, bool, string>(question, response.Value.Trim().Trim('"').Trim(), positive, line);
+                }
+                else
+                {
+                    return new Tuple<Question, string, bool, string>(question, null, positive, line);
+                }
             })
             .FirstOrDefault();
 

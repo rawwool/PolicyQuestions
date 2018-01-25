@@ -40,7 +40,7 @@ namespace Questions.Model
                 return true;
 
             if (ConditionForPresentation.Item1.UserResponse == null && ConditionForPresentation.Item2 == null) return true;
-            bool result = Fuzzy.AreSimilar(ConditionForPresentation.Item1.UserResponse, UserResponse);
+            bool result = Fuzzy.AreSimilar(ConditionForPresentation.Item1.UserResponse, ConditionForPresentation.Item2);
 
             return ConditionForPresentation.Item3 ? result : !result;
         }
