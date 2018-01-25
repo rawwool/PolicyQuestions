@@ -10,6 +10,7 @@ namespace Questions.Model
     {
         public string Category { get; set; }
         public Question Parent { get; set; }
+        public Tuple<Question, string, bool, string> ConditionForPresentation { get; set; }
         public List<Question> Children { get; set; }
         public string Ref { get; set; }
         public string Text { get; set; }
@@ -20,7 +21,7 @@ namespace Questions.Model
 
         public List<string> ResponseChoices { get; set; }
 
-        public string ParentResponseForInvokingThisChildQuestion { get; set; }
+        //public string ParentResponseForInvokingThisChildQuestion { get; set; }
 
         public string DefaultResponse { get; set; }
 
@@ -34,13 +35,14 @@ namespace Questions.Model
 
         public bool InvokeThisQuestion()
         {
-            if (Parent == null) return true;
-            if (ParentResponseForInvokingThisChildQuestion == null) return true;
-            if (Fuzzy.GetExactMatch(new string[] { "NA", "N/A", "Not applicable" }, ParentResponseForInvokingThisChildQuestion, true) != null)
+            if (ConditionForPresentation == null || ConditionForPresentation.Item1 == null || ConditionForPresentation.Item2 == null) return true;
+            if (Fuzzy.GetExactMatch(new string[] { "NA", "N/A", "Not applicable" }, ConditionForPresentation.Item2, true) != null)
                 return true;
 
-            if (Parent.UserResponse == null && ParentResponseForInvokingThisChildQuestion == null) return true;
-            return Fuzzy.AreSimilar(Parent.UserResponse, ParentResponseForInvokingThisChildQuestion);
+            if (ConditionForPresentation.Item1.UserResponse == null && ConditionForPresentation.Item2 == null) return true;
+            bool result = Fuzzy.AreSimilar(ConditionForPresentation.Item1.UserResponse, UserResponse);
+
+            return ConditionForPresentation.Item3 ? result : !result;
         }
 
         public override string ToString()

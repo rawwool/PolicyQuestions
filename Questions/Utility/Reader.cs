@@ -88,12 +88,15 @@ namespace Questions.Utility
                 if (string.IsNullOrWhiteSpace(reference) 
                     && string.IsNullOrWhiteSpace(questionText)
                     && string.IsNullOrWhiteSpace(subQuestionText)) continue;
+                //var conditionParent = GetParentAndResponseForInvokingThisChildQuestion(GetValue(xlRange, i, displayRuleColumnIndex));
                 Question question = new Question
                 {
                     Category = xlWorksheet.Name,
                     Ref = reference,
                     Type = ConvertToType<enumType>(GetValue(xlRange, i, mandatoryOptionalColumnIndex)),
-                    ParentResponseForInvokingThisChildQuestion = GetParentResponseForInvokingThisChildQuestion(GetValue(xlRange, i, displayRuleColumnIndex)),
+                    //ConditionParent = conditionParent == null? null : listOfQUestions.FirstOrDefault(f => f.Ref.Trim() == conditionParent.Item1),//Assuming that question has already been loaded
+                    //ParentResponseForInvokingThisChildQuestion = conditionParent == null ? null : conditionParent.Item2,
+                    ConditionForPresentation = GetConditionForPresentation(listOfQUestions, GetValue(xlRange, i, displayRuleColumnIndex)),
                     DataCaptureType = ConvertToType<enumDataCaptureType>(GetValue(xlRange, i, dataTypeColumnIndex)),
                     HelpText = GetValue(xlRange, i, helpColumnIndex),
                     ResponseChoices = GetValue(xlRange, i, answersColumnIndex).Split('\n').Where(s => s.Trim().Length > 0).ToList()
@@ -162,12 +165,40 @@ namespace Questions.Utility
             return worksheetName;
         }
 
-        private static string GetParentResponseForInvokingThisChildQuestion(string line)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        private static Tuple<Question, string, bool, string> GetConditionForPresentation(List<Question> listOfQuestions, string line)
         {
             //In the spreadhseet the response if enclosed in double quotes
-            var result = from Match match in Regex.Matches(line, "\"([^\"]*)\"")
-                         select match.ToString().Trim('"').Trim();
-            return result.FirstOrDefault();
+            //\w* *is *"([^\"]*)"
+            bool positive = true;
+            var result = from Match match in Regex.Matches(line, "\\w* *is *\"([^\"]*)\"")
+                         select match.ToString().Trim().Trim('"').Trim();
+            if (result.FirstOrDefault() == null)
+            {
+                positive = false;
+                // Check for Is Not
+                result = from Match match in Regex.Matches(line, "\\w* *is *not *\"([^\"]*)\"")
+                         select match.ToString().Replace("not", "").Trim().Trim('"').Trim();
+            }
+            Tuple<Question, string, bool, string> returnResult =
+            result.Select(s=> 
+            {
+                var t=  s.Split(' ');
+                Question question = listOfQuestions.FirstOrDefault(f => f.Ref.Trim() == t.First());
+                return new Tuple<Question, string, bool, string>(question, t.Last().Trim().Trim('"').Trim(), positive, line);
+            })
+            .FirstOrDefault();
+
+            if (returnResult == null)
+            {
+                returnResult = new Tuple<Question, string, bool, string>(null, null, true, line);
+            }
+
+            return returnResult;
         }
 
         //https://stackoverflow.com/a/3877738
