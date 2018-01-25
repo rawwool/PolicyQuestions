@@ -12,6 +12,7 @@ namespace Questions.Model
         public Question Parent { get; set; }
         public Tuple<Question, string, bool, string> ConditionForPresentation { get; set; }
         public List<Question> Children { get; set; }
+        public List<Question> LogicalChildren { get; set; }
         public string Ref { get; set; }
         public string Text { get; set; }
 
@@ -28,9 +29,12 @@ namespace Questions.Model
         public string UserResponse { get; set; }
         public string HelpText { get; set; }
 
+        public Action<bool> ShowHide;
+
         public Question()
         {
             Children = new List<Question>();
+            LogicalChildren = new List<Question>();
         }
 
         public bool InvokeThisQuestion()

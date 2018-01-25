@@ -55,12 +55,34 @@ namespace PolicyQuestionsWF
                     this.flowLayoutPanel2.Controls.Add(control);
                 }
             });
+
+            _Question.LogicalChildren.ForEach(s =>
+            {
+                if (s.ShowHide != null)
+                {
+                    s.ShowHide.Invoke(s.InvokeThisQuestion());
+                }
+            });
+
+        }
+
+        void ShowHideQuestion(bool show)
+        {
+            if (show)
+            {
+                this.Show();
+            }
+            else
+            {
+                this.Hide();
+            }
         }
 
         public void SetQuestion(Question question)
         {
             this.SuspendLayout();
             _Question = question;
+            question.ShowHide = this.ShowHideQuestion;
             this.labelReference.Text = question.Ref;
             this.labelReference.Tag = question.HelpText;
             this.labelQuestion.Text = question.Text;

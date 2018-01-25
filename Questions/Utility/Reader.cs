@@ -102,6 +102,11 @@ namespace Questions.Utility
                     ResponseChoices = GetValue(xlRange, i, answersColumnIndex).Split('\n').Where(s => s.Trim().Length > 0).ToList()
                 };
 
+                if (question.ConditionForPresentation.Item1 != null)
+                {
+                    question.ConditionForPresentation.Item1.LogicalChildren.Add(question);
+                }
+
                 question.Text = questionText;
                 if (string.IsNullOrEmpty(question.Text.Trim()))
                 {
