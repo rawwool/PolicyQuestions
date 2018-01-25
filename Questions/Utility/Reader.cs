@@ -166,7 +166,7 @@ namespace Questions.Utility
         {
             //In the spreadhseet the response if enclosed in double quotes
             var result = from Match match in Regex.Matches(line, "\"([^\"]*)\"")
-                         select match.ToString().Trim('"');
+                         select match.ToString().Trim('"').Trim();
             return result.FirstOrDefault();
         }
 

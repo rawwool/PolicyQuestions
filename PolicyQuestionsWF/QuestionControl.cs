@@ -44,7 +44,7 @@ namespace PolicyQuestionsWF
             {
                 Changed.Invoke(value);
             }
-            _Question.UserResponse = value;
+            _Question.UserResponse = value.Trim();
             this.flowLayoutPanel2.Controls.Clear();
             _Question.Children.ForEach(s =>
             {

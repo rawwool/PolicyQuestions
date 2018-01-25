@@ -23,6 +23,10 @@ namespace PolicyQuestions
             string[] source = { "Radio", "Radio button", "Button", "Drop down", "Combo", "Text box", "Date", "Calendar", "Text box & not sure button", "N/A, NA" };
 
             string match = Fuzzy.GetBestMatch(source, "N/A");
+
+            int dist = Fuzzy.DamerauLevenshteinDistance("yes", "no", 3);
+            int dist2 = Fuzzy.LevenshteinDistance("yes", "no");
+
         }
     }
 }

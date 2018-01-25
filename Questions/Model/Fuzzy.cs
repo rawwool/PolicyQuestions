@@ -88,10 +88,11 @@ namespace Questions.Model
             return (result > threshold) ? int.MaxValue : result;
         }
 
-        internal static bool AreSame(string userResponse, string parentResponseForInvokingThisChildQuestion)
+        internal static bool AreSimilar(string userResponse, string parentResponseForInvokingThisChildQuestion)
         {
+            int threshold = 2;
             if (userResponse == null || parentResponseForInvokingThisChildQuestion == null) return false;
-            return GetBestMatch( new string[]{ userResponse }, parentResponseForInvokingThisChildQuestion) != null;
+            return DamerauLevenshteinDistance(userResponse.ToLower(), parentResponseForInvokingThisChildQuestion.ToLower(), threshold) <= threshold;
         }
 
         public static int DamerauLevenshteinDistanceOnePrefix(string source, string target, int threshold)
@@ -138,6 +139,26 @@ namespace Questions.Model
         {
             return GetBestMatch(source, target, true);
         }
+
+        public static string GetExactMatch(IEnumerable<string> source, string target, bool ignoreCase)
+        {
+            IEnumerable<Tuple<string, string>> sourceObject = null;
+            if (ignoreCase)
+            {
+                sourceObject = source.Select(s => new Tuple<string, string>(s, s.ToLower()));
+                target = target.ToLower();
+            }
+            else
+            {
+                sourceObject = source.Select(s => new Tuple<string, string>(s, s));
+            }
+            var match = sourceObject.Where(s => s.Item2 == target).FirstOrDefault();
+            if (match != null)
+                return match.Item1;
+            else
+                return null;
+        }
+
         public static string GetBestMatch(IEnumerable<string> source, string target, bool ignoreCase)
         {
             IEnumerable<Tuple<string, string>> sourceObject = null;
