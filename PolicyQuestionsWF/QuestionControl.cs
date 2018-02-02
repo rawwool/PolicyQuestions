@@ -51,29 +51,43 @@ namespace PolicyQuestionsWF
                 Changed.Invoke(value);
             }
             _Question.UserResponse = value.Trim();
-            //this.flowLayoutPanel2.Controls.Clear();
-            //_Question.Children.ForEach(s =>
-            //{
-            //    if (s.InvokeThisQuestion())
-            //    {
-            //        QuestionControl control = new QuestionControl();
-            //        control.SetQuestion(s);
-            //        this.flowLayoutPanel2.Controls.Add(control);
-            //    }
-            //});
+            
             _Question.Children.ForEach(s =>
             {
+                bool invoke = s.InvokeThisQuestion();
                 if (s.ShowHide != null)
                 {
-                    s.ShowHide.Invoke(s.InvokeThisQuestion());
+                    s.ShowHide.Invoke(invoke);
                 }
+                s.Children.ForEach(c =>
+                {
+                    if (c.ShowHide != null)
+                    {
+                        c.ShowHide.Invoke(invoke && c.InvokeThisQuestion());
+                    }
+                });
+                s.LogicalChildren.ForEach(c =>
+                {
+                    if (c.ShowHide != null)
+                    {
+                        c.ShowHide.Invoke(invoke && c.InvokeThisQuestion());
+                    }
+                });
             });
             _Question.LogicalChildren.ForEach(s =>
             {
+                bool invoke = s.InvokeThisQuestion();
                 if (s.ShowHide != null)
                 {
-                    s.ShowHide.Invoke(s.InvokeThisQuestion());
+                    s.ShowHide.Invoke(invoke);
                 }
+                s.LogicalChildren.ForEach(c =>
+                {
+                    if (c.ShowHide != null)
+                    {
+                        c.ShowHide.Invoke(invoke && c.InvokeThisQuestion());
+                    }
+                });
             });
 
             this.SetHeight();

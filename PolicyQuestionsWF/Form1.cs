@@ -50,7 +50,12 @@ namespace PolicyQuestionsWF
                 });
             });
 
-            
+            foreach(var control in this.flowLayoutPanel1.Controls)
+            {
+                if (control is QuestionControl) (control as QuestionControl).SetHeight();
+                if (control is QuestionControl) (control as QuestionControl).Refresh();
+            }
+
             this.ResumeLayout();
             this.Refresh();
         }

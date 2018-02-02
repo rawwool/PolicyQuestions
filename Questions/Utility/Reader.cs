@@ -12,10 +12,14 @@ namespace Questions.Utility
 {
     public class Reader
     {
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+
         public static List<Question> Read(string excelFile, IEnumerable<string> tabs)
         {
             List<Question> listOfQUestions = new List<Question>();
             Excel.Application xlApp = new Excel.Application();
+            var hWnd = xlApp.Hwnd;
             Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(excelFile);
             //Excel._Worksheet xlWorksheet = xlWorkbook.Sheets[6];
 
@@ -29,9 +33,6 @@ namespace Questions.Utility
             LoadWorksheet(listOfQUestions, GetWorksheet(dict, s)));
             
 
-            //cleanup
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
 
             //rule of thumb for releasing com objects:
             //  never use two dots, all COM objects must be referenced and released individually
@@ -42,11 +43,28 @@ namespace Questions.Utility
             xlWorkbook.Close();
             Marshal.ReleaseComObject(xlWorkbook);
 
+            if (xlApp.Workbooks != null) Marshal.ReleaseComObject(xlApp.Workbooks); 
+
             //quit and release
             xlApp.Quit();
             Marshal.ReleaseComObject(xlApp);
 
+            //cleanup
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            SendMessage((IntPtr)hWnd, 0x10, IntPtr.Zero, IntPtr.Zero);
+
             return listOfQUestions;
+
+            /* https://www.add-in-express.com/creating-addins-blog/2013/11/05/release-excel-com-objects/
+            if (sheets != null) Marshal.ReleaseComObject(sheets);
+            if (book != null) Marshal.ReleaseComObject(book);
+            if (books != null) Marshal.ReleaseComObject(books);
+            if (app != null) Marshal.ReleaseComObject(app);
+            */
         }
 
         private static Excel._Worksheet GetWorksheet(Dictionary<string, Excel._Worksheet> dict, string s)
