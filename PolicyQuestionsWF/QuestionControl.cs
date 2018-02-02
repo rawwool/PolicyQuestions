@@ -20,6 +20,12 @@ namespace PolicyQuestionsWF
             //textBoxHelp.TextChanged += TextBoxHelp_TextChanged;
         }
 
+        public QuestionControl(int maxWidth, int minWidth):this()
+        {
+            this.MaximumSize = new Size(maxWidth, 0);
+            this.MinimumSize = new Size(minWidth, 0);
+        }
+
         private void TextBoxHelp_TextChanged(object sender, EventArgs e)
         {
             TextBox textBox1 = sender as TextBox;
@@ -55,7 +61,13 @@ namespace PolicyQuestionsWF
             //        this.flowLayoutPanel2.Controls.Add(control);
             //    }
             //});
-
+            _Question.Children.ForEach(s =>
+            {
+                if (s.ShowHide != null)
+                {
+                    s.ShowHide.Invoke(s.InvokeThisQuestion());
+                }
+            });
             _Question.LogicalChildren.ForEach(s =>
             {
                 if (s.ShowHide != null)
@@ -64,23 +76,38 @@ namespace PolicyQuestionsWF
                 }
             });
 
+            this.SetHeight();
+            // If this control is the parent of a logical child, then the child may physically belong to
+            // a common parent. Therefore the parent needs to recalculate the height too to cover this scenario.
+            if (this.Parent != null && this.Parent.Parent != null && this.Parent.Parent.Parent != null && this.Parent.Parent.Parent is QuestionControl)
+            {
+                (this.Parent.Parent.Parent as QuestionControl).SetHeight();
+            }
+
+            this.Invalidate();
+            this.Update();
+            this.Refresh();
+            this.Parent?.Refresh();
         }
 
         void ShowHideQuestion(bool show)
         {
             if (show)
             {
-                this.Show();
-                this.Invalidate();
-                this.Update();
-                this.Refresh();
-                this.Parent?.Refresh();
+                //this.Show();
+                this.Margin = new Padding(4);
+                this.SetHeight();
+               
             }
             else
             {
-                this.Hide();
+                //this.Hide();
+                this.Height = 0;
+                this.Margin = new Padding(0);
             }
-            ShowHideLogicalChildren();
+            //ShowHideLogicalChildren();
+            //SetHeight();
+            
         }
 
         private void ShowHideLogicalChildren()
@@ -111,18 +138,44 @@ namespace PolicyQuestionsWF
             {
                 //if (s.InvokeThisQuestion())
                 {
-                    QuestionControl control = new QuestionControl();
+                    QuestionControl control = new QuestionControl(550, 500);
                     control.SetQuestion(s);
                     this.flowLayoutPanel2.Controls.Add(control);
+                    s.ShowHide(s.InvokeThisQuestion());
                 }
             });
-            this.Dock = DockStyle.Fill;
+            //this.Dock = DockStyle.Fill;
 
-            
-
-            //this.Height = flowLayoutPanel1.DisplayRectangle.Height + 20 + this.Padding.Bottom + this.Padding.Top + this.Margin.Top + this.Margin.Bottom;
+            SetHeight();
             this.ResumeLayout();
             this.Refresh();
+        }
+
+        public void SetHeight()
+        {
+            //int height = flowLayoutPanel1.DisplayRectangle.Height + this.Padding.Bottom + this.Padding.Top + this.Margin.Top + this.Margin.Bottom;
+            // reduce the height of the hidden child questions
+            //foreach (Control control in flowLayoutPanel2.Controls)
+            //{
+            //    if (control is QuestionControl && control.Visible == false)
+            //    {
+            //        height -= control.DisplayRectangle.Height;
+            //    }
+            //}
+            int height = this.flowLayoutPanel2.Top;
+            int innerHeight = 0;
+            foreach (Control control in flowLayoutPanel2.Controls)
+            {
+                if (control is QuestionControl && control.Visible)
+                {
+                    if (control.DisplayRectangle.Height > 0)
+                    {
+                        innerHeight += control.DisplayRectangle.Height + control.Padding.Size.Height * 2 + control.Margin.Size.Height * 2;
+                    }
+                }
+            }
+
+            this.Height = height + innerHeight;
         }
 
         private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)

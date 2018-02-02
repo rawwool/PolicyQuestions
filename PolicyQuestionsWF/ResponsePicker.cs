@@ -33,7 +33,7 @@ namespace PolicyQuestionsWF
                 case enumDataCaptureType.TextBox:
                     var textBox = new TextBox();
                     textBox.Multiline = true;
-                    textBox.Width = 500;
+                    textBox.Width = 350;
                     textBox.TextChanged += TextBox_TextChanged;
                     this.flowLayoutPanel1.Controls.Add(textBox);
                     break;
