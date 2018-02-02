@@ -74,11 +74,22 @@ namespace PolicyQuestionsWF
                 this.Invalidate();
                 this.Update();
                 this.Refresh();
-                this.Parent.Refresh();
+                this.Parent?.Refresh();
             }
             else
             {
                 this.Hide();
+            }
+            ShowHideLogicalChildren();
+        }
+
+        private void ShowHideLogicalChildren()
+        {
+            if (_Question != null)
+            {
+                _Question.LogicalChildren.ForEach(s =>
+                    s.ShowHide(s.InvokeThisQuestion())
+                    );
             }
         }
 
