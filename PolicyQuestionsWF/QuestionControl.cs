@@ -45,16 +45,16 @@ namespace PolicyQuestionsWF
                 Changed.Invoke(value);
             }
             _Question.UserResponse = value.Trim();
-            this.flowLayoutPanel2.Controls.Clear();
-            _Question.Children.ForEach(s =>
-            {
-                if (s.InvokeThisQuestion())
-                {
-                    QuestionControl control = new QuestionControl();
-                    control.SetQuestion(s);
-                    this.flowLayoutPanel2.Controls.Add(control);
-                }
-            });
+            //this.flowLayoutPanel2.Controls.Clear();
+            //_Question.Children.ForEach(s =>
+            //{
+            //    if (s.InvokeThisQuestion())
+            //    {
+            //        QuestionControl control = new QuestionControl();
+            //        control.SetQuestion(s);
+            //        this.flowLayoutPanel2.Controls.Add(control);
+            //    }
+            //});
 
             _Question.LogicalChildren.ForEach(s =>
             {
@@ -71,6 +71,10 @@ namespace PolicyQuestionsWF
             if (show)
             {
                 this.Show();
+                this.Invalidate();
+                this.Update();
+                this.Refresh();
+                this.Parent.Refresh();
             }
             else
             {
@@ -82,7 +86,7 @@ namespace PolicyQuestionsWF
         {
             this.SuspendLayout();
             _Question = question;
-            question.ShowHide = this.ShowHideQuestion;
+            question.ShowHide = this.ShowHideQuestion;//  (Show) => { if (Show) this.Show(); else this.Hide(); }; 
             this.labelReference.Text = question.Ref;
             this.labelReference.Tag = question.HelpText;
             this.labelQuestion.Text = question.Text;
@@ -94,7 +98,7 @@ namespace PolicyQuestionsWF
             this.panelResponse.Controls.Add(responsePicker);
             question.Children.ForEach(s =>
             {
-                if (s.InvokeThisQuestion())
+                //if (s.InvokeThisQuestion())
                 {
                     QuestionControl control = new QuestionControl();
                     control.SetQuestion(s);
@@ -102,6 +106,9 @@ namespace PolicyQuestionsWF
                 }
             });
             this.Dock = DockStyle.Fill;
+
+            
+
             //this.Height = flowLayoutPanel1.DisplayRectangle.Height + 20 + this.Padding.Bottom + this.Padding.Top + this.Margin.Top + this.Margin.Bottom;
             this.ResumeLayout();
             this.Refresh();

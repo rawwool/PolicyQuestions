@@ -24,14 +24,32 @@ namespace PolicyQuestionsWF
         {
             this.SuspendLayout();
             this.flowLayoutPanel1.Controls.Clear();
-            Questions.Utility.Questions.GetQuestion(group)
-               .ToList()
-               .ForEach(s =>
+            var questions = Questions.Utility.Questions.GetQuestion(group)
+               .ToList();
+            questions.ForEach(s =>
                {
                    QuestionControl control = new QuestionControl();
                    control.SetQuestion(s);
                    this.flowLayoutPanel1.Controls.Add(control);
                });
+            questions.ForEach(s =>
+            {
+                s.Children.ForEach(q =>
+                {
+                    if (q.ShowHide != null)
+                    {
+                        q.ShowHide.Invoke(q.InvokeThisQuestion());
+                    }
+                });
+                s.LogicalChildren.ForEach(q =>
+                {
+                    if (q.ShowHide != null)
+                    {
+                        q.ShowHide.Invoke(q.InvokeThisQuestion());
+                    }
+                });
+            });
+
             this.ResumeLayout();
             this.Refresh();
         }

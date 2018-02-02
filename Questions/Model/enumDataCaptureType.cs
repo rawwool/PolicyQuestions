@@ -4,7 +4,7 @@ namespace Questions.Model
 {
     public enum enumDataCaptureType
     {
-        [Description("Radio, Radio button, Button")]
+        [Description("Radio, Radio button, Button, Slidebar, slide bar")]
         RadioButton,
         [Description("Drop down, Combo")]
         DropDown,
@@ -14,6 +14,8 @@ namespace Questions.Model
         DateTimePicker,
         [Description("Text box & not sure button")]
         TextBoxAndNotSureCheckBox,
+        //[Description("Slidebar, slide bar")]
+        //SlideBar,
         [Description("N/A, NA, Not applicable")]
         NoDataCapture
     }

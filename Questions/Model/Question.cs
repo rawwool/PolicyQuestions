@@ -10,6 +10,8 @@ namespace Questions.Model
     {
         public string Category { get; set; }
         public Question Parent { get; set; }
+
+        //ParentQuestion, ThisQuestio'sResponse, IsthatPositive, Full Response
         public Tuple<Question, string, bool, string> ConditionForPresentation { get; set; }
         public List<Question> Children { get; set; }
         public List<Question> LogicalChildren { get; set; }
@@ -39,6 +41,7 @@ namespace Questions.Model
 
         public bool InvokeThisQuestion()
         {
+            //ConditionForPresentation >> ParentQuestion, ThisQuestio'sResponse, IsthatPositive, Full Response
             if (ConditionForPresentation == null || ConditionForPresentation.Item1 == null || ConditionForPresentation.Item2 == null) return true;
             if (Fuzzy.GetExactMatch(new string[] { "NA", "N/A", "Not applicable" }, ConditionForPresentation.Item2, true) != null)
                 return true;

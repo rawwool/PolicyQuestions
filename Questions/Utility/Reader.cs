@@ -102,6 +102,7 @@ namespace Questions.Utility
                     ResponseChoices = GetValue(xlRange, i, answersColumnIndex).Split('\n').Where(s => s.Trim().Length > 0).ToList()
                 };
 
+                //ConditionForPresentation >> ParentQuestion, ThisQuestio'sResponse, IsthatPositive, Full Response
                 if (question.ConditionForPresentation.Item1 != null)
                 {
                     question.ConditionForPresentation.Item1.LogicalChildren.Add(question);
@@ -194,10 +195,11 @@ namespace Questions.Utility
             {
                 var t=  s.Split(' ');
                 Match response = Regex.Match(s, "\"([^\"]*)\"");
-                Question question = listOfQuestions.FirstOrDefault(f => f.Ref.Trim() == t.First());
-
+                //Question question = listOfQuestions.FirstOrDefault(f => f.Ref.Trim() == t.First());
+                Question question = GetQuestionFromTreeByRef(listOfQuestions, t.First().Trim());
                 if (response.Success)
                 {
+                    //Question, Response, IsthatPositive, Full Response
                     return new Tuple<Question, string, bool, string>(question, response.Value.Trim().Trim('"').Trim(), positive, line);
                 }
                 else
@@ -213,6 +215,18 @@ namespace Questions.Utility
             }
 
             return returnResult;
+        }
+
+        private static Question GetQuestionFromTreeByRef(List<Question> listOfQuestions, string v)
+        {
+            Question question = listOfQuestions.FirstOrDefault(f => f.Ref.Trim() == v);
+            if (question == null)
+            {
+                //look in the child questions
+                question = listOfQuestions.SelectMany(s => s.Children).FirstOrDefault(f => f.Ref.Trim() == v);
+            }
+
+            return question;
         }
 
         //https://stackoverflow.com/a/3877738
