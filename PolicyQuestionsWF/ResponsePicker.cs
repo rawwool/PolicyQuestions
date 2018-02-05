@@ -60,7 +60,7 @@ namespace PolicyQuestionsWF
                         rb.Margin = new Padding(2);
                         //rb.BackColor = Color.Red;
                         rb.Text = s;
-                        if (userResponse != null && rb.Text == userResponse) rb.Select();
+                        if (userResponse != null && rb.Text == userResponse) rb.Checked = true;
                         rb.CheckedChanged += Rb_CheckedChanged;
                         this.flowLayoutPanel1.Controls.Add(rb);
                     });
