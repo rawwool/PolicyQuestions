@@ -8,7 +8,7 @@ namespace Questions.Model
         RadioButton,
         [Description("Drop down, Combo")]
         DropDown,
-        [Description("Text box, UK Postcode, house number")]
+        [Description("Text box, UK Postcode, house number, House name")]
         TextBox,
         [Description("Date, Calendar")]
         DateTimePicker,
