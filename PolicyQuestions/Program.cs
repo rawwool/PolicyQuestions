@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Questions.Utility;
 
 namespace PolicyQuestions
 {
@@ -26,6 +27,8 @@ namespace PolicyQuestions
 
             int dist = Fuzzy.DamerauLevenshteinDistance("yes", "no", 3);
             int dist2 = Fuzzy.LevenshteinDistance("yes", "no");
+
+            var test = "sub-question".RemoveSpecialCharacters();
 
         }
     }

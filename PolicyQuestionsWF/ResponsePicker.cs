@@ -20,13 +20,14 @@ namespace PolicyQuestionsWF
 
         public Action<string> Changed;
 
-        public void SetResponseDataCaptureType(enumDataCaptureType type, IEnumerable<string> possibleResponses)
+        public void SetResponseDataCaptureType(enumDataCaptureType type, IEnumerable<string> possibleResponses, string userResponse)
         {
             this.AutoSize = true;
             switch(type)
             {
                 case enumDataCaptureType.DateTimePicker:
                     DateTimePicker picker = new DateTimePicker();
+                    if (userResponse != null) picker.Value = DateTime.Parse(userResponse);
                     picker.ValueChanged += Picker_ValueChanged;
                     this.flowLayoutPanel1.Controls.Add(picker);
                     break;
@@ -34,6 +35,7 @@ namespace PolicyQuestionsWF
                     var textBox = new TextBox();
                     textBox.Multiline = true;
                     textBox.Width = 350;
+                    if (userResponse != null) textBox.Text = userResponse;
                     textBox.TextChanged += TextBox_TextChanged;
                     this.flowLayoutPanel1.Controls.Add(textBox);
                     break;
@@ -41,6 +43,7 @@ namespace PolicyQuestionsWF
                     var combo = new ComboBox();
                     combo.DropDownStyle = ComboBoxStyle.DropDownList;
                     combo.DataSource = possibleResponses;
+                    if (userResponse != null) combo.SelectedValue = userResponse;
                     combo.SelectedValueChanged += Combo_SelectedValueChanged;
                     this.flowLayoutPanel1.Controls.Add(combo);
                     break;
@@ -57,6 +60,7 @@ namespace PolicyQuestionsWF
                         rb.Margin = new Padding(2);
                         //rb.BackColor = Color.Red;
                         rb.Text = s;
+                        if (userResponse != null && rb.Text == userResponse) rb.Select();
                         rb.CheckedChanged += Rb_CheckedChanged;
                         this.flowLayoutPanel1.Controls.Add(rb);
                     });

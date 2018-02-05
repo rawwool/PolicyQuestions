@@ -62,22 +62,22 @@ namespace PolicyQuestionsWF
 
         private void aboutHomeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            LoadQuestions("1c About your home");    
+            LoadQuestions("About your home");    
         }
 
         private void aboutYourCoverToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-            LoadQuestions("1d About your cover ");
+            LoadQuestions("About your cover");
         }
 
         private void importantQuestionsToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-            LoadQuestions("1b Important questions ");
+            LoadQuestions("Important questions");
         }
 
         private void aboutYouToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-            LoadQuestions("1a About you");
+            LoadQuestions("About you");
         }
 
         private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
@@ -93,7 +93,7 @@ namespace PolicyQuestionsWF
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     Questions.Utility.Questions.LoadQuestions(Path.Combine(Environment.CurrentDirectory, /*"Questions.xlsx"*/ofd.FileName), new string[]
-                    { "About you"/*, "Important questions ", "About your home", "About your cover"*/});
+                    { "About you", "Important questions","About your home", "About your cover"});
                     
                     LoadQuestions("About you");
                 }

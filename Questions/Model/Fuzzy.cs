@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Questions.Utility;
 
 namespace Questions.Model
 {
@@ -164,12 +165,13 @@ namespace Questions.Model
             IEnumerable<Tuple<string, string>> sourceObject = null;
             if (ignoreCase)
             {
-                sourceObject = source.Select(s => new Tuple<string, string>( s, s.ToLower() ));
-                target = target.ToLower();
+                sourceObject = source.Select(s => new Tuple<string, string>( s, s.RemoveSpecialCharacters().ToLower() ));
+                target = target.RemoveSpecialCharacters().ToLower();
             }
             else
             {
-                sourceObject = source.Select(s => new Tuple<string, string>(s, s));
+                sourceObject = source.Select(s => new Tuple<string, string>(s, s.RemoveSpecialCharacters()));
+                target = target.RemoveSpecialCharacters();
             }
             var matches = sourceObject.Where(s => s.Item2.Trim().Length > 0).Select(s =>
               {

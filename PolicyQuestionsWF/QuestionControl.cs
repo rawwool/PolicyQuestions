@@ -145,18 +145,15 @@ namespace PolicyQuestionsWF
             //this.labelHelp.Text = question.HelpText;
             this.panelResponse.Controls.Clear();
             ResponsePicker responsePicker = new ResponsePicker();
-            responsePicker.SetResponseDataCaptureType(question.DataCaptureType, question.ResponseChoices);
+            responsePicker.SetResponseDataCaptureType(question.DataCaptureType, question.ResponseChoices, question.UserResponse);
             responsePicker.Changed = ResponseChanged;
             this.panelResponse.Controls.Add(responsePicker);
             question.Children.ForEach(s =>
             {
-                //if (s.InvokeThisQuestion())
-                {
-                    QuestionControl control = new QuestionControl(550, 500);
-                    control.SetQuestion(s);
-                    this.flowLayoutPanel2.Controls.Add(control);
-                    s.ShowHide(s.InvokeThisQuestion());
-                }
+                QuestionControl control = new QuestionControl(550, 500);
+                control.SetQuestion(s);
+                this.flowLayoutPanel2.Controls.Add(control);
+                s.ShowHide(s.InvokeThisQuestion());
             });
             //this.Dock = DockStyle.Fill;
 

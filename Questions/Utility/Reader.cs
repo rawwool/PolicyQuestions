@@ -116,7 +116,7 @@ namespace Questions.Utility
                     //ParentResponseForInvokingThisChildQuestion = conditionParent == null ? null : conditionParent.Item2,
                     ConditionForPresentation = GetConditionForPresentation(listOfQUestions, GetValue(xlRange, i, displayRuleColumnIndex)),
                     DataCaptureType = ConvertToType<enumDataCaptureType>(GetValue(xlRange, i, dataTypeColumnIndex)),
-                    HelpText = GetValue(xlRange, i, helpColumnIndex),
+                    
                     ResponseChoices = GetValue(xlRange, i, answersColumnIndex).Split('\n').Where(s => s.Trim().Length > 0).ToList()
                 };
 
@@ -126,6 +126,7 @@ namespace Questions.Utility
                     question.ConditionForPresentation.Item1.LogicalChildren.Add(question);
                 }
 
+                question.HelpText = $"{GetValue(xlRange, i, helpColumnIndex)}\nDisplay rule:{question.ConditionForPresentation.Item4}";
                 question.Text = questionText;
                 if (string.IsNullOrEmpty(question.Text.Trim()))
                 {
