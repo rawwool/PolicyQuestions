@@ -194,20 +194,6 @@ namespace Questions.Utility
             Marshal.ReleaseComObject(xlWorksheet);
         }
 
-        [Obsolete]
-        private static int GetColumnIndex(Excel.Range xlRange, string v)
-        {
-            int colCount = xlRange.Columns.Count;
-            List<string> names = new List<string>();
-            for (int i = 1; i <= colCount; i++)
-            {
-                var name = GetValue(xlRange, 1, i);
-                names.Add(name);
-            }
-            string match = Fuzzy.GetBestMatch(names, v);
-            return names.IndexOf(match) + 1;
-        }
-
         private static IEnumerable<string> GetColumns(System.Array xlRange, int rownNumber)
         {
             int colCount = xlRange.GetLength(1);
@@ -238,14 +224,121 @@ namespace Questions.Utility
             return worksheetName;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="line"></param>
-        /// <returns></returns>
-        private static Tuple<Question, string, bool, string> GetConditionForPresentation(List<Question> listOfQuestions, string line)
+        //[orand]* \w* *is *\"([^\"]*)\"
+        //https://regex101.com/
+        //[orand]* \w* *[is not]* *\"([^\"]*)\"
+        //34534 34534 345645654A is "test" or 345645654A is"best" and terter is "fdkjghfd" or sfsd is not "rtre"
+        //34534 34534 345645654A is not "test" and 345645654A is"best" and terter is "fdkjghfd" or sfsd is not "rtre"
+
+
+        public class Expression
+        {
+            public Question Question { get; set; }
+            public string ValueToCompareWith { get; set; }
+            public string Operator { get; set; }
+        }
+
+        public class Expressions
+        {
+            List<Expression> _Expressions = new List<Expression>();
+            public void Add(Expression exp)
+            {
+                _Expressions.Add(exp);
+            }
+
+            public void Add(IEnumerable<Expression> expressions)
+            {
+                _Expressions.AddRange(expressions);
+            }
+
+            public Expressions(IEnumerable<Expression> expressions)
+            {
+                Add(expressions);
+            }
+
+            public bool Evaluate()
+            {
+                bool result = false;
+
+                List<List<Expression>> groupedList = new List<List<Expression>>();
+                List<Expression> list = new List<Expression>();
+                foreach (var exp in _Expressions)
+                {
+                    if (exp.Operator == "or")
+                    {
+                        groupedList.Add(list);
+                        list = new List<Expression>();
+                    }
+                    list.Add(exp);
+                }
+                bool groupResult = true;
+                foreach (var group in groupedList)
+                {
+                    bool expResult = false;
+                    foreach (var exp in group)
+                    {
+                        //These are all 'or' so return as soon as one 
+                        if (exp.Question.UserResponse == exp.ValueToCompareWith)
+                        {
+                            expResult = true;
+                            continue;
+                        }
+                    }
+                    groupResult = groupResult && expResult;
+
+                    if (groupResult == false) break;
+                }
+                result = groupResult;
+                return result;
+            }
+        }
+
+        private static Expressions GetExpressionsForrPresentation(List<Question> listOfQuestions, string line)
         {
             //In the spreadhseet the response if enclosed in double quotes
+            var clauses = from Match match in Regex.Matches(line, "[orand]* \\w* *[is not]* *\"([^\"]*)\"")
+                          select match.ToString().Trim();
+            var expressions = clauses.Select(s =>
+            {
+                var t = s.Split(' ');
+
+                var expression = new Expression()
+                {
+                    Operator = t.Count() == 3 ? t.First().Trim() : "and",
+                    Question = GetQuestionFromTreeByRef(listOfQuestions, t.First().Trim()),
+                    ValueToCompareWith = t.Last().Trim()
+                };
+                return expression;
+            });
+
+            return new Expressions(expressions);
+        }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="line"></param>
+            /// <returns></returns>
+            private static Tuple<Question, string, bool, string> GetConditionForPresentation(List<Question> listOfQuestions, string line)
+        {
+            //In the spreadhseet the response if enclosed in double quotes
+            var clauses = from Match match in Regex.Matches(line, "[orand]* \\w* *[is not]* *\"([^\"]*)\"")
+                          select match.ToString().Trim();
+             var expressions =  clauses.Select(s=>
+                          {
+                              var t = s.Split(' ');
+
+                              var expression = new Expression()
+                              {
+                                  Operator = t.Count() == 3 ? t.First().Trim() : "and",
+                                  Question = GetQuestionFromTreeByRef(listOfQuestions, t.First().Trim()),
+                                  ValueToCompareWith = t.Last().Trim()
+                              };
+                              return expression;
+                          });
+            
+
+
             //\w* *is *"([^\"]*)"
             bool positive = true;
             var result = from Match match in Regex.Matches(line, "\\w* *is *\"([^\"]*)\"")
