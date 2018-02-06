@@ -17,6 +17,15 @@ namespace Questions.Utility
             _Questions = Reader.Read(file, tabs);
         }
 
+        public static IEnumerable<string> GetCategtories()
+        {
+            if (_Questions != null)
+            {
+                return _Questions.Select(s => s.Category).Distinct();
+            }
+            return new string[] { "Empty" };
+        }
+
         public static IEnumerable<Question> GetQuestion(string category)
         {
             string key = Fuzzy.GetBestMatch(_Questions.Select(s => s.Category), category);

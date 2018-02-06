@@ -20,6 +20,27 @@ namespace PolicyQuestionsWF
         }
            
 
+        private void PolulateTabs()
+        {
+            var categories = Questions.Utility.Questions.GetCategtories();
+            flowLayoutPanel2.Controls.Clear();
+            foreach(var category in categories)
+            {
+                Button label = new Button();
+                label.Margin = new Padding(3);
+                label.AutoSize = true;
+                label.Text = category;
+                label.Size = new Size(160, 80);
+                label.Click += Label_Click;
+                flowLayoutPanel2.Controls.Add(label);
+            }
+        }
+
+        private void Label_Click(object sender, EventArgs e)
+        {
+            LoadQuestions((sender as Button).Text);
+        }
+
         private void LoadQuestions(string group)
         {
             this.SuspendLayout();
@@ -96,6 +117,7 @@ namespace PolicyQuestionsWF
                     { "About you", "Important questions","About your home", "About your cover"});
                     
                     LoadQuestions("About you");
+                    PolulateTabs();
                 }
             }
         }
