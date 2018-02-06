@@ -75,6 +75,52 @@ namespace Questions.Utility
             else return null;
         }
 
+        //class Range
+        //{
+        //    public int RowCount { get;  }
+        //    public int ColumnCount { get; }
+
+        //    private string[,] Values;
+
+        //    public Range(System.Array values)
+        //    {
+        //        if (values.Rank != 2) throw new InvalidOperationException("Only 2D arrays are accepted");
+        //        int columncount = values.GetLength(0);
+        //        for (int i = 1; i <= values.Length; i++)
+        //        {
+
+        //        }
+        //}
+        //private static string[,] ConvertToStringArray(System.Array values)
+        //{
+        //    List<>
+
+        //    // loop through the 2-D System.Array and populate the 1-D String Array
+        //    for (int i = 1; i <= values.Length; i++)
+        //    {
+        //        if (values.GetValue(1, i) == null)
+        //            theArray[i - 1] = "";
+        //        else
+        //            theArray[i - 1] = (string)values.GetValue(1, i).ToString();
+        //    }
+
+        //    return theArray;
+        //}
+
+        private static string GetValue(System.Array values, int row, int column)
+        {
+            try
+            {
+                object value = values.GetValue(row, column);
+                if (value != null) return value.ToString();
+                else return string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
         private static void LoadWorksheet(List<Question> listOfQUestions, Excel._Worksheet xlWorksheet)
         {
             if (xlWorksheet == null) return;
@@ -85,9 +131,12 @@ namespace Questions.Utility
             int rowCount = xlRange.Rows.Count;
             int colCount = xlRange.Columns.Count;
 
+            System.Array xlRangeValues = (System.Array)xlRange.Cells.Value;
+           
+
             //iterate over the rows and columns and print to the console as it appears in the file
             //excel is not zero based!!
-            var columns = GetColumns(xlRange, 1);
+            var columns = GetColumns(xlRangeValues, 1);
 
             int answersColumnIndex = GetColumnIndex(columns, "Answers");
             int referenceColumnIndex = GetColumnIndex(columns, "Question Ref");
@@ -100,24 +149,24 @@ namespace Questions.Utility
             Question parentQuestion = null;
             for (int i = 2; i <= rowCount; i++)
             {
-                var reference = GetValue(xlRange, i, referenceColumnIndex);
-                string questionText = GetValue(xlRange, i, questionTextColumnIndex);
-                string subQuestionText = GetValue(xlRange, i, subQuestionTextColumnIndex);
+                var reference = GetValue(xlRangeValues, i, referenceColumnIndex);
+                string questionText = GetValue(xlRangeValues, i, questionTextColumnIndex);
+                string subQuestionText = GetValue(xlRangeValues, i, subQuestionTextColumnIndex);
                 if (string.IsNullOrWhiteSpace(reference) 
                     && string.IsNullOrWhiteSpace(questionText)
                     && string.IsNullOrWhiteSpace(subQuestionText)) continue;
-                //var conditionParent = GetParentAndResponseForInvokingThisChildQuestion(GetValue(xlRange, i, displayRuleColumnIndex));
+                //var conditionParent = GetParentAndResponseForInvokingThisChildQuestion(GetValue(xlRangeValues, i, displayRuleColumnIndex));
                 Question question = new Question
                 {
                     Category = xlWorksheet.Name,
                     Ref = reference,
-                    Type = ConvertToType<enumType>(GetValue(xlRange, i, mandatoryOptionalColumnIndex)),
+                    Type = ConvertToType<enumType>(GetValue(xlRangeValues, i, mandatoryOptionalColumnIndex)),
                     //ConditionParent = conditionParent == null? null : listOfQUestions.FirstOrDefault(f => f.Ref.Trim() == conditionParent.Item1),//Assuming that question has already been loaded
                     //ParentResponseForInvokingThisChildQuestion = conditionParent == null ? null : conditionParent.Item2,
-                    ConditionForPresentation = GetConditionForPresentation(listOfQUestions, GetValue(xlRange, i, displayRuleColumnIndex)),
-                    DataCaptureType = ConvertToType<enumDataCaptureType>(GetValue(xlRange, i, dataTypeColumnIndex)),
+                    ConditionForPresentation = GetConditionForPresentation(listOfQUestions, GetValue(xlRangeValues, i, displayRuleColumnIndex)),
+                    DataCaptureType = ConvertToType<enumDataCaptureType>(GetValue(xlRangeValues, i, dataTypeColumnIndex)),
                     
-                    ResponseChoices = GetValue(xlRange, i, answersColumnIndex).Split('\n').Where(s => s.Trim().Length > 0).ToList()
+                    ResponseChoices = GetValue(xlRangeValues, i, answersColumnIndex).Split('\n').Where(s => s.Trim().Length > 0).ToList()
                 };
 
                 //ConditionForPresentation >> ParentQuestion, ThisQuestio'sResponse, IsthatPositive, Full Response
@@ -126,7 +175,7 @@ namespace Questions.Utility
                     question.ConditionForPresentation.Item1.LogicalChildren.Add(question);
                 }
 
-                question.HelpText = $"{GetValue(xlRange, i, helpColumnIndex)}\nDisplay rule:{question.ConditionForPresentation.Item4}";
+                question.HelpText = $"{GetValue(xlRangeValues, i, helpColumnIndex)}\nDisplay rule:{question.ConditionForPresentation.Item4}";
                 question.Text = questionText;
                 if (string.IsNullOrEmpty(question.Text.Trim()))
                 {
@@ -143,7 +192,6 @@ namespace Questions.Utility
             //release com objects to fully kill excel process from running in the background
             Marshal.ReleaseComObject(xlRange);
             Marshal.ReleaseComObject(xlWorksheet);
-
         }
 
         [Obsolete]
@@ -160,9 +208,9 @@ namespace Questions.Utility
             return names.IndexOf(match) + 1;
         }
 
-        private static IEnumerable<string> GetColumns(Excel.Range xlRange, int rownNumber)
+        private static IEnumerable<string> GetColumns(System.Array xlRange, int rownNumber)
         {
-            int colCount = xlRange.Columns.Count;
+            int colCount = xlRange.GetLength(1);
             List<string> names = new List<string>();
             for (int i = 1; i <= colCount; i++)
             {
