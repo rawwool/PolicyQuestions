@@ -236,6 +236,7 @@ namespace Questions.Utility
             public Question Question { get; set; }
             public string ValueToCompareWith { get; set; }
             public string Operator { get; set; }
+            public bool Positive { get; set; }
         }
 
         public class Expressions
@@ -278,10 +279,21 @@ namespace Questions.Utility
                     foreach (var exp in group)
                     {
                         //These are all 'or' so return as soon as one 
-                        if (exp.Question.UserResponse == exp.ValueToCompareWith)
+                        if (exp.Positive)
                         {
-                            expResult = true;
-                            continue;
+                            if (exp.Question.UserResponse == exp.ValueToCompareWith)
+                            {
+                                expResult = true;
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            if (exp.Question.UserResponse != exp.ValueToCompareWith)
+                            {
+                                expResult = true;
+                                continue;
+                            }
                         }
                     }
                     groupResult = groupResult && expResult;
@@ -304,9 +316,10 @@ namespace Questions.Utility
 
                 var expression = new Expression()
                 {
-                    Operator = t.Count() == 3 ? t.First().Trim() : "and",
+                    Operator = t.First().Trim() == "or"? "or" : "and",
                     Question = GetQuestionFromTreeByRef(listOfQuestions, t.First().Trim()),
-                    ValueToCompareWith = t.Last().Trim()
+                    ValueToCompareWith = t.Last().Trim(),
+                    Positive = Regex.IsMatch(s, "is *not")? false: true
                 };
                 return expression;
             });
