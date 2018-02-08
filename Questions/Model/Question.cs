@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Questions.Utility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,8 @@ namespace Questions.Model
 
         //ParentQuestion, ThisQuestio'sResponse, IsthatPositive, Full Response
         public Tuple<Question, string, bool, string> ConditionForPresentation { get; set; }
+
+        public Expressions Expressions { get; set; }
         public List<Question> Children { get; set; }
         public List<Question> LogicalChildren { get; set; }
         public string Ref { get; set; }
@@ -30,6 +33,19 @@ namespace Questions.Model
 
         public string UserResponse { get; set; }
         public string HelpText { get; set; }
+
+        public string InternalInfo
+        {
+            get
+            {
+                if (Expressions != null)
+                {
+                    return Expressions.ToString();
+                }
+
+                return string.Empty;
+            }
+        }
 
         public Action<bool> ShowHide;
 

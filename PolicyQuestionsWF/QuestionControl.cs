@@ -140,7 +140,7 @@ namespace PolicyQuestionsWF
             _Question = question;
             question.ShowHide = this.ShowHideQuestion;//  (Show) => { if (Show) this.Show(); else this.Hide(); }; 
             this.labelReference.Text = question.Ref;
-            this.labelReference.Tag = question.HelpText;
+            this.labelReference.Tag = question.HelpText + Environment.NewLine + question.Expressions;
             this.labelQuestion.Text = question.Text;
             //this.labelHelp.Text = question.HelpText;
             this.panelResponse.Controls.Clear();

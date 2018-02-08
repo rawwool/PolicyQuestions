@@ -164,6 +164,7 @@ namespace Questions.Utility
                     //ConditionParent = conditionParent == null? null : listOfQUestions.FirstOrDefault(f => f.Ref.Trim() == conditionParent.Item1),//Assuming that question has already been loaded
                     //ParentResponseForInvokingThisChildQuestion = conditionParent == null ? null : conditionParent.Item2,
                     ConditionForPresentation = GetConditionForPresentation(listOfQUestions, GetValue(xlRangeValues, i, displayRuleColumnIndex)),
+                    Expressions = GetExpressionsForrPresentation(listOfQUestions, GetValue(xlRangeValues, i, displayRuleColumnIndex)),
                     DataCaptureType = ConvertToType<enumDataCaptureType>(GetValue(xlRangeValues, i, dataTypeColumnIndex)),
                     
                     ResponseChoices = GetValue(xlRangeValues, i, answersColumnIndex).Split('\n').Where(s => s.Trim().Length > 0).ToList()
@@ -231,95 +232,26 @@ namespace Questions.Utility
         //34534 34534 345645654A is not "test" and 345645654A is"best" and terter is "fdkjghfd" or sfsd is not "rtre"
 
 
-        public class Expression
-        {
-            public Question Question { get; set; }
-            public string ValueToCompareWith { get; set; }
-            public string Operator { get; set; }
-            public bool Positive { get; set; }
-        }
+        
 
-        public class Expressions
-        {
-            List<Expression> _Expressions = new List<Expression>();
-            public void Add(Expression exp)
-            {
-                _Expressions.Add(exp);
-            }
-
-            public void Add(IEnumerable<Expression> expressions)
-            {
-                _Expressions.AddRange(expressions);
-            }
-
-            public Expressions(IEnumerable<Expression> expressions)
-            {
-                Add(expressions);
-            }
-
-            public bool Evaluate()
-            {
-                bool result = false;
-
-                List<List<Expression>> groupedList = new List<List<Expression>>();
-                List<Expression> list = new List<Expression>();
-                foreach (var exp in _Expressions)
-                {
-                    if (exp.Operator == "or")
-                    {
-                        groupedList.Add(list);
-                        list = new List<Expression>();
-                    }
-                    list.Add(exp);
-                }
-                bool groupResult = true;
-                foreach (var group in groupedList)
-                {
-                    bool expResult = false;
-                    foreach (var exp in group)
-                    {
-                        //These are all 'or' so return as soon as one 
-                        if (exp.Positive)
-                        {
-                            if (exp.Question.UserResponse == exp.ValueToCompareWith)
-                            {
-                                expResult = true;
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            if (exp.Question.UserResponse != exp.ValueToCompareWith)
-                            {
-                                expResult = true;
-                                continue;
-                            }
-                        }
-                    }
-                    groupResult = groupResult && expResult;
-
-                    if (groupResult == false) break;
-                }
-                result = groupResult;
-                return result;
-            }
-        }
-
-        private static Expressions GetExpressionsForrPresentation(List<Question> listOfQuestions, string line)
+        public static Expressions GetExpressionsForrPresentation(List<Question> listOfQuestions, string line)
         {
             //In the spreadhseet the response if enclosed in double quotes
-            var clauses = from Match match in Regex.Matches(line, "[orand]* \\w* *[is not]* *\"([^\"]*)\"")
-                          select match.ToString().Trim();
+            string regex = "(?'operator' or| and)? (?'question'\\w*) *(?'comparer'is|not|is not)? *\"(?'response'[^\"]*)\"";
+            var clauses = from Match match in Regex.Matches(line, regex)
+                          select match;
             var expressions = clauses.Select(s =>
             {
-                var t = s.Split(' ');
-
-                var expression = new Expression()
-                {
-                    Operator = t.First().Trim() == "or"? "or" : "and",
-                    Question = GetQuestionFromTreeByRef(listOfQuestions, t.First().Trim()),
-                    ValueToCompareWith = t.Last().Trim(),
-                    Positive = Regex.IsMatch(s, "is *not")? false: true
+            string op = s.Groups["operator"].Success ? s.Groups["operator"].Value.Trim() : "and";
+            string questionId = s.Groups["question"].Success ? s.Groups["question"].Value.Trim() : "none";
+            string response = s.Groups["response"].Success ? s.Groups["response"].Value.Trim() : "none";
+            string comparer = s.Groups["comparer"].Success ? s.Groups["comparer"].Value.Trim() : "none";
+            var expression = new Expression()
+            {
+                Operator = op,
+                Question = GetQuestionFromTreeByRef(listOfQuestions, questionId),
+                ValueToCompareWith = response,
+                Positive = Fuzzy.AreSimilar(comparer, "is"),
                 };
                 return expression;
             });
@@ -332,7 +264,7 @@ namespace Questions.Utility
             /// </summary>
             /// <param name="line"></param>
             /// <returns></returns>
-            private static Tuple<Question, string, bool, string> GetConditionForPresentation(List<Question> listOfQuestions, string line)
+        private static Tuple<Question, string, bool, string> GetConditionForPresentation(List<Question> listOfQuestions, string line)
         {
             //In the spreadhseet the response if enclosed in double quotes
             var clauses = from Match match in Regex.Matches(line, "[orand]* \\w* *[is not]* *\"([^\"]*)\"")
@@ -340,6 +272,7 @@ namespace Questions.Utility
              var expressions =  clauses.Select(s=>
                           {
                               var t = s.Split(' ');
+
 
                               var expression = new Expression()
                               {

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Questions", "Questions\Ques
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PolicyQuestionsWF", "PolicyQuestionsWF\PolicyQuestionsWF.csproj", "{4889BA01-C3E1-4FFB-B3C1-F0F5BFD87135}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuestionsTest", "QuestionsTest\QuestionsTest.csproj", "{2B1CF00A-6549-4D90-BAAE-472B6CB1D843}"
+EndProject
 Global
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true
@@ -30,6 +32,10 @@ Global
 		{4889BA01-C3E1-4FFB-B3C1-F0F5BFD87135}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4889BA01-C3E1-4FFB-B3C1-F0F5BFD87135}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4889BA01-C3E1-4FFB-B3C1-F0F5BFD87135}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B1CF00A-6549-4D90-BAAE-472B6CB1D843}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B1CF00A-6549-4D90-BAAE-472B6CB1D843}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B1CF00A-6549-4D90-BAAE-472B6CB1D843}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B1CF00A-6549-4D90-BAAE-472B6CB1D843}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

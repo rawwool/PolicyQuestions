@@ -50,6 +50,7 @@
     <Compile Include="Model\Fuzzy.cs" />
     <Compile Include="Model\Question.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\Expressions.cs" />
     <Compile Include="Utility\Extension.cs" />
     <Compile Include="Utility\Questions.cs" />
     <Compile Include="Utility\Reader.cs" />
