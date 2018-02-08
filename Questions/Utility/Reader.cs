@@ -17,47 +17,53 @@ namespace Questions.Utility
 
         public static List<Question> Read(string excelFile, IEnumerable<string> tabs)
         {
-            List<Question> listOfQUestions = new List<Question>();
-            Excel.Application xlApp = new Excel.Application();
-            var hWnd = xlApp.Hwnd;
-            Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(excelFile);
-            //Excel._Worksheet xlWorksheet = xlWorkbook.Sheets[6];
-
-            Dictionary<string, Excel._Worksheet> dict = new Dictionary<string, Excel._Worksheet>();
-            foreach (Excel._Worksheet worksheet in xlWorkbook.Worksheets)
+            Excel.Application xlApp = null;
+            Excel.Workbook xlWorkbook = null;
+            int hWnd = 0;
+            try
             {
-                dict.Add(worksheet.Name, worksheet);
+                List<Question> listOfQUestions = new List<Question>();
+                xlApp = new Excel.Application();
+                hWnd = xlApp.Hwnd;
+                xlWorkbook = xlApp.Workbooks.Open(excelFile);
+                //Excel._Worksheet xlWorksheet = xlWorkbook.Sheets[6];
+
+                Dictionary<string, Excel._Worksheet> dict = new Dictionary<string, Excel._Worksheet>();
+                foreach (Excel._Worksheet worksheet in xlWorkbook.Worksheets)
+                {
+                    dict.Add(worksheet.Name, worksheet);
+                }
+
+                tabs.ToList().ForEach(s =>
+                LoadWorksheet(listOfQUestions, GetWorksheet(dict, s)));
+
+
+
+                //rule of thumb for releasing com objects:
+                //  never use two dots, all COM objects must be referenced and released individually
+                //  ex: [somthing].[something].[something] is bad
+                return listOfQUestions;
             }
+            finally
+            {
+                //close and release
+                xlWorkbook.Close();
+                Marshal.ReleaseComObject(xlWorkbook);
 
-            tabs.ToList().ForEach(s =>
-            LoadWorksheet(listOfQUestions, GetWorksheet(dict, s)));
-            
+                if (xlApp.Workbooks != null) Marshal.ReleaseComObject(xlApp.Workbooks);
 
+                //quit and release
+                xlApp.Quit();
+                Marshal.ReleaseComObject(xlApp);
 
-            //rule of thumb for releasing com objects:
-            //  never use two dots, all COM objects must be referenced and released individually
-            //  ex: [somthing].[something].[something] is bad
+                //cleanup
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
 
-
-            //close and release
-            xlWorkbook.Close();
-            Marshal.ReleaseComObject(xlWorkbook);
-
-            if (xlApp.Workbooks != null) Marshal.ReleaseComObject(xlApp.Workbooks); 
-
-            //quit and release
-            xlApp.Quit();
-            Marshal.ReleaseComObject(xlApp);
-
-            //cleanup
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-
-            SendMessage((IntPtr)hWnd, 0x10, IntPtr.Zero, IntPtr.Zero);
-
-            return listOfQUestions;
+                SendMessage((IntPtr)hWnd, 0x10, IntPtr.Zero, IntPtr.Zero);
+            }
 
             /* https://www.add-in-express.com/creating-addins-blog/2013/11/05/release-excel-com-objects/
             if (sheets != null) Marshal.ReleaseComObject(sheets);
@@ -125,74 +131,84 @@ namespace Questions.Utility
         {
             if (xlWorksheet == null) return;
 
-            Excel.Range xlRange;
-
-            xlRange = xlWorksheet.UsedRange;
-            int rowCount = xlRange.Rows.Count;
-            int colCount = xlRange.Columns.Count;
-
-            System.Array xlRangeValues = (System.Array)xlRange.Cells.Value;
-           
-
-            //iterate over the rows and columns and print to the console as it appears in the file
-            //excel is not zero based!!
-            var columns = GetColumns(xlRangeValues, 1);
-
-            int answersColumnIndex = GetColumnIndex(columns, "Answers");
-            int referenceColumnIndex = GetColumnIndex(columns, "Question Ref");
-            int mandatoryOptionalColumnIndex = GetColumnIndex(columns, "Field Display");
-            int displayRuleColumnIndex = GetColumnIndex(columns, "Field Display Rule");
-            int dataTypeColumnIndex = GetColumnIndex(columns, "Data Type (Hiscox UI)");
-            int helpColumnIndex = GetColumnIndex(columns, "Help copy");
-            int questionTextColumnIndex = GetColumnIndex(columns, "Question Text");
-            int subQuestionTextColumnIndex = GetColumnIndex(columns, "sub-Question");
-            Question parentQuestion = null;
-            for (int i = 2; i <= rowCount; i++)
+            Excel.Range xlRange = null;
+            try
             {
-                var reference = GetValue(xlRangeValues, i, referenceColumnIndex);
-                string questionText = GetValue(xlRangeValues, i, questionTextColumnIndex);
-                string subQuestionText = GetValue(xlRangeValues, i, subQuestionTextColumnIndex);
-                if (string.IsNullOrWhiteSpace(reference) 
-                    && string.IsNullOrWhiteSpace(questionText)
-                    && string.IsNullOrWhiteSpace(subQuestionText)) continue;
-                //var conditionParent = GetParentAndResponseForInvokingThisChildQuestion(GetValue(xlRangeValues, i, displayRuleColumnIndex));
-                Question question = new Question
-                {
-                    Category = xlWorksheet.Name,
-                    Ref = reference,
-                    Type = ConvertToType<enumType>(GetValue(xlRangeValues, i, mandatoryOptionalColumnIndex)),
-                    //ConditionParent = conditionParent == null? null : listOfQUestions.FirstOrDefault(f => f.Ref.Trim() == conditionParent.Item1),//Assuming that question has already been loaded
-                    //ParentResponseForInvokingThisChildQuestion = conditionParent == null ? null : conditionParent.Item2,
-                    ConditionForPresentation = GetConditionForPresentation(listOfQUestions, GetValue(xlRangeValues, i, displayRuleColumnIndex)),
-                    Expressions = GetExpressionsForrPresentation(listOfQUestions, GetValue(xlRangeValues, i, displayRuleColumnIndex)),
-                    DataCaptureType = ConvertToType<enumDataCaptureType>(GetValue(xlRangeValues, i, dataTypeColumnIndex)),
-                    
-                    ResponseChoices = GetValue(xlRangeValues, i, answersColumnIndex).Split('\n').Where(s => s.Trim().Length > 0).ToList()
-                };
+                xlRange = xlWorksheet.UsedRange;
+                int rowCount = xlRange.Rows.Count;
+                int colCount = xlRange.Columns.Count;
 
-                //ConditionForPresentation >> ParentQuestion, ThisQuestio'sResponse, IsthatPositive, Full Response
-                if (question.ConditionForPresentation.Item1 != null)
-                {
-                    question.ConditionForPresentation.Item1.LogicalChildren.Add(question);
-                }
+                System.Array xlRangeValues = (System.Array)xlRange.Cells.Value;
 
-                question.HelpText = $"{GetValue(xlRangeValues, i, helpColumnIndex)}\nDisplay rule:{question.ConditionForPresentation.Item4}";
-                question.Text = questionText;
-                if (string.IsNullOrEmpty(question.Text.Trim()))
+
+                //iterate over the rows and columns and print to the console as it appears in the file
+                //excel is not zero based!!
+                var columns = GetColumns(xlRangeValues, 1);
+
+                int answersColumnIndex = GetColumnIndex(columns, "Answers");
+                int referenceColumnIndex = GetColumnIndex(columns, "Question Ref");
+                int mandatoryOptionalColumnIndex = GetColumnIndex(columns, "Field Display");
+                int displayRuleColumnIndex = GetColumnIndex(columns, "Field Display Rule");
+                int dataTypeColumnIndex = GetColumnIndex(columns, "Data Type (Hiscox UI)");
+                int helpColumnIndex = GetColumnIndex(columns, "Help copy");
+                int questionTextColumnIndex = GetColumnIndex(columns, "Question Text");
+                int subQuestionTextColumnIndex = GetColumnIndex(columns, "sub-Question");
+                Question parentQuestion = null;
+                for (int i = 2; i <= rowCount; i++)
                 {
-                    question.Text = subQuestionText;
-                    question.Parent = parentQuestion;
-                    parentQuestion.Children.Add(question);
-                }
-                else
-                {
-                    parentQuestion = question;
-                    listOfQUestions.Add(question);
+                    var reference = GetValue(xlRangeValues, i, referenceColumnIndex);
+                    string questionText = GetValue(xlRangeValues, i, questionTextColumnIndex);
+                    string subQuestionText = GetValue(xlRangeValues, i, subQuestionTextColumnIndex);
+                    if (string.IsNullOrWhiteSpace(reference)
+                        && string.IsNullOrWhiteSpace(questionText)
+                        && string.IsNullOrWhiteSpace(subQuestionText)) continue;
+                    //var conditionParent = GetParentAndResponseForInvokingThisChildQuestion(GetValue(xlRangeValues, i, displayRuleColumnIndex));
+                    Question question = new Question
+                    {
+                        Category = xlWorksheet.Name,
+                        Ref = reference,
+                        Type = ConvertToType<enumType>(GetValue(xlRangeValues, i, mandatoryOptionalColumnIndex)),
+                        //ConditionParent = conditionParent == null? null : listOfQUestions.FirstOrDefault(f => f.Ref.Trim() == conditionParent.Item1),//Assuming that question has already been loaded
+                        //ParentResponseForInvokingThisChildQuestion = conditionParent == null ? null : conditionParent.Item2,
+                        //ConditionForPresentation = GetConditionForPresentation(listOfQUestions, GetValue(xlRangeValues, i, displayRuleColumnIndex)),
+                        Expressions = GetExpressionsForrPresentation(listOfQUestions, GetValue(xlRangeValues, i, displayRuleColumnIndex)),
+                        DataCaptureType = ConvertToType<enumDataCaptureType>(GetValue(xlRangeValues, i, dataTypeColumnIndex)),
+
+                        ResponseChoices = GetValue(xlRangeValues, i, answersColumnIndex).Split('\n').Where(s => s.Trim().Length > 0).ToList()
+                    };
+
+                    //ConditionForPresentation >> ParentQuestion, ThisQuestio'sResponse, IsthatPositive, Full Response
+                    //if (question.ConditionForPresentation.Item1 != null)
+                    //{
+                    //    question.ConditionForPresentation.Item1.LogicalChildren.Add(question);
+                    //}
+                    question.Expressions.Questions.ToList().ForEach(s => s.LogicalChildren.Add(question));
+
+                    question.HelpText = $"{GetValue(xlRangeValues, i, helpColumnIndex)}\nDisplay rule:{question.Expressions.ToString()}";
+                    question.Text = questionText;
+                    if (string.IsNullOrEmpty(question.Text.Trim()))
+                    {
+                        question.Text = subQuestionText;
+                        question.Parent = parentQuestion;
+                        parentQuestion.Children.Add(question);
+                    }
+                    else
+                    {
+                        parentQuestion = question;
+                        listOfQUestions.Add(question);
+                    }
                 }
             }
-            //release com objects to fully kill excel process from running in the background
-            Marshal.ReleaseComObject(xlRange);
-            Marshal.ReleaseComObject(xlWorksheet);
+            catch(InvalidOperationException ex)
+            {
+                throw new InvalidOperationException(ex.Message + Environment.NewLine + "xlWorksheet: " + xlWorksheet.Name);
+            }
+            finally
+            {
+                //release com objects to fully kill excel process from running in the background
+                Marshal.ReleaseComObject(xlRange);
+                Marshal.ReleaseComObject(xlWorksheet);
+            }
         }
 
         private static IEnumerable<string> GetColumns(System.Array xlRange, int rownNumber)
@@ -236,27 +252,35 @@ namespace Questions.Utility
 
         public static Expressions GetExpressionsForrPresentation(List<Question> listOfQuestions, string line)
         {
-            //In the spreadhseet the response if enclosed in double quotes
-            string regex = "(?'operator' or| and)? (?'question'\\w*) *(?'comparer'is|not|is not)? *\"(?'response'[^\"]*)\"";
-            var clauses = from Match match in Regex.Matches(line, regex)
-                          select match;
-            var expressions = clauses.Select(s =>
+            try
             {
-            string op = s.Groups["operator"].Success ? s.Groups["operator"].Value.Trim() : "and";
-            string questionId = s.Groups["question"].Success ? s.Groups["question"].Value.Trim() : "none";
-            string response = s.Groups["response"].Success ? s.Groups["response"].Value.Trim() : "none";
-            string comparer = s.Groups["comparer"].Success ? s.Groups["comparer"].Value.Trim() : "none";
-            var expression = new Expression()
-            {
-                Operator = op,
-                Question = GetQuestionFromTreeByRef(listOfQuestions, questionId),
-                ValueToCompareWith = response,
-                Positive = Fuzzy.AreSimilar(comparer, "is"),
-                };
-                return expression;
-            });
+                //In the spreadhseet the response if enclosed in double quotes
+                string regex = "(?'operator' or| and)? (?'question'\\w*) *(?'comparer'is|not|is not)? *\"(?'response'[^\"]*)\"";
+                var clauses = from Match match in Regex.Matches(line, regex)
+                              select match;
+                var expressions = clauses.Select(s =>
+                {
+                    string op = s.Groups["operator"].Success ? s.Groups["operator"].Value.Trim() : "and";
+                    string questionId = s.Groups["question"].Success ? s.Groups["question"].Value.Trim() : "none";
+                    string response = s.Groups["response"].Success ? s.Groups["response"].Value.Trim() : "none";
+                    string comparer = s.Groups["comparer"].Success ? s.Groups["comparer"].Value.Trim() : "none";
+                    var expression = new Expression()
+                    {
+                        Operator = op,
+                        Question = GetQuestionFromTreeByRef(listOfQuestions, questionId),
+                        ValueToCompareWith = response,
+                        Positive = Fuzzy.AreSimilar(comparer, "is"),
+                    };
+                    return expression;
+                });
 
-            return new Expressions(expressions);
+
+                return new Expressions(expressions);
+            }
+            catch(InvalidOperationException ex)
+            {
+                throw new InvalidOperationException(ex.Message + Environment.NewLine + "expression text: " + line);
+            }
         }
 
             /// <summary>
@@ -331,6 +355,8 @@ namespace Questions.Utility
                 //look in the child questions
                 question = listOfQuestions.SelectMany(s => s.Children).FirstOrDefault(f => f.Ref.Trim() == v);
             }
+
+            if (question == null) throw new InvalidOperationException($"Question {v} not found.");
 
             return question;
         }

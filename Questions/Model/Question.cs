@@ -13,7 +13,7 @@ namespace Questions.Model
         public Question Parent { get; set; }
 
         //ParentQuestion, ThisQuestio'sResponse, IsthatPositive, Full Response
-        public Tuple<Question, string, bool, string> ConditionForPresentation { get; set; }
+        //public Tuple<Question, string, bool, string> ConditionForPresentation { get; set; }
 
         public Expressions Expressions { get; set; }
         public List<Question> Children { get; set; }
@@ -57,6 +57,7 @@ namespace Questions.Model
 
         public bool InvokeThisQuestion()
         {
+            /*
             //ConditionForPresentation >> ParentQuestion, ThisQuestio'sResponse, IsthatPositive, Full Response
             if (ConditionForPresentation == null || ConditionForPresentation.Item1 == null || ConditionForPresentation.Item2 == null) return true;
             if (Fuzzy.GetExactMatch(new string[] { "NA", "N/A", "Not applicable" }, ConditionForPresentation.Item2, true) != null)
@@ -66,6 +67,8 @@ namespace Questions.Model
             bool result = Fuzzy.AreSimilar(ConditionForPresentation.Item1.UserResponse, ConditionForPresentation.Item2);
 
             return ConditionForPresentation.Item3 ? result : !result;
+            */
+            return this.Expressions.Evaluate();
         }
 
         public override string ToString()

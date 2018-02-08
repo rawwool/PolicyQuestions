@@ -42,6 +42,14 @@ namespace Questions.Utility
             _GroupedExpression = groupedList;
         }
 
+        public IEnumerable<Question> Questions
+        {
+            get
+            {
+                return _Expressions.Select(s => s.Question);
+            }
+        }
+
         public Expressions(IEnumerable<Expression> expressions)
         {
             Add(expressions);
@@ -49,6 +57,7 @@ namespace Questions.Utility
 
         public override string ToString()
         {
+            if (_GroupedExpression == null || _GroupedExpression.FirstOrDefault() == null) return string.Empty;
             var result = _GroupedExpression.Select(s =>
                 {
                     var resultGroup =  s.Select(a =>
@@ -76,7 +85,7 @@ namespace Questions.Utility
                     //These are all 'or' so return as soon as one 
                     if (exp.Positive)
                     {
-                        if (exp.Question.UserResponse == exp.ValueToCompareWith)
+                        if (Fuzzy.AreSimilar(exp.Question.UserResponse, exp.ValueToCompareWith))
                         {
                             expResult = true;
                             continue;
@@ -85,7 +94,7 @@ namespace Questions.Utility
                     }
                     else
                     {
-                        if (exp.Question.UserResponse != exp.ValueToCompareWith)
+                        if (!Fuzzy.AreSimilar(exp.Question.UserResponse, exp.ValueToCompareWith))
                         {
                             expResult = true;
                             continue;

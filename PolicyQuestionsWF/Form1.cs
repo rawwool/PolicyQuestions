@@ -108,17 +108,24 @@ namespace PolicyQuestionsWF
 
         private void loadToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog ofd = new OpenFileDialog())
+            try
             {
-                ofd.Filter = "Excel files|*.xlsx";
-                if (ofd.ShowDialog() == DialogResult.OK)
+                using (OpenFileDialog ofd = new OpenFileDialog())
                 {
-                    Questions.Utility.Questions.LoadQuestions(Path.Combine(Environment.CurrentDirectory, /*"Questions.xlsx"*/ofd.FileName), new string[]
-                    { "About you", "Important questions","About your home", "About your cover"});
-                    
-                    LoadQuestions("About you");
-                    PolulateTabs();
+                    ofd.Filter = "Excel files|*.xlsx";
+                    if (ofd.ShowDialog() == DialogResult.OK)
+                    {
+                        Questions.Utility.Questions.LoadQuestions(Path.Combine(Environment.CurrentDirectory, /*"Questions.xlsx"*/ofd.FileName), new string[]
+                        { "About you", "Important questions","About your home", "About your cover"});
+
+                        LoadQuestions("About you");
+                        PolulateTabs();
+                    }
                 }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Error in reading", MessageBoxButtons.OK,  MessageBoxIcon.Error);
             }
         }
     }
