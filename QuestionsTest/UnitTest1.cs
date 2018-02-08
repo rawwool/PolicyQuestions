@@ -68,5 +68,20 @@ namespace QuestionsTest
             Console.WriteLine(expressions);
             Assert.IsFalse(expressions.Evaluate());
         }
+
+        //Mandatory if response to question 1A001 is "Contents only" or "Buildings & Contents"
+        [TestMethod]
+        public void TestMethod5()
+        {
+            List<Question> questions = new List<Question>();
+            questions.Add(new Question() { Ref = "1A001", UserResponse = "Contents only" });
+            questions.Add(new Question() { Ref = "1A016", UserResponse = "I do not work" });
+            questions.Add(new Question() { Ref = "1A017", UserResponse = "I work full or part time" });
+            string line = "Mandatory if response to question 1A001 is \"Contents only\" or \"Buildings & Contents\"";
+            var expressions = Reader.GetExpressionsForrPresentation(questions, line);
+            Console.WriteLine(expressions);
+            Assert.IsTrue(expressions.Evaluate());
+        }
+
     }
 }

@@ -182,9 +182,6 @@ namespace Questions.Utility
                     //{
                     //    question.ConditionForPresentation.Item1.LogicalChildren.Add(question);
                     //}
-                    question.Expressions.Questions.ToList().ForEach(s => s.LogicalChildren.Add(question));
-
-                    question.HelpText = $"{GetValue(xlRangeValues, i, helpColumnIndex)}\nDisplay rule:{question.Expressions.ToString()}";
                     question.Text = questionText;
                     if (string.IsNullOrEmpty(question.Text.Trim()))
                     {
@@ -197,6 +194,10 @@ namespace Questions.Utility
                         parentQuestion = question;
                         listOfQUestions.Add(question);
                     }
+
+                    question.Expressions.Questions.ToList().ForEach(s => s.LogicalChildren.Add(question));
+
+                    question.HelpText = $"{GetValue(xlRangeValues, i, helpColumnIndex)}\nDisplay rule:{question.Expressions.ToString()}";
                 }
             }
             catch(InvalidOperationException ex)
@@ -349,6 +350,8 @@ namespace Questions.Utility
 
         private static Question GetQuestionFromTreeByRef(List<Question> listOfQuestions, string v)
         {
+            if (string.IsNullOrWhiteSpace(v))
+                throw new InvalidOperationException("The question reference is missing.\nTypical expression:  if 1A001 is \"Contents only\" or 1A001 is \"Buildings & Contents\"");
             Question question = listOfQuestions.FirstOrDefault(f => f.Ref.Trim() == v);
             if (question == null)
             {
@@ -368,6 +371,7 @@ namespace Questions.Utility
             {
                 str = Fuzzy.GetBestMatch(Extension.GetEnumNameDescriptionAttribueValuePairs<T>(), str);
                 //str = Fuzzy.GetBestMatch(Enum.GetNames(typeof(T)).ToList(), str);
+                if (str == null) return default(T);
                 T res = (T)Enum.Parse(typeof(T), str);
                 if (!Enum.IsDefined(typeof(T), res)) return default(T);
                 return res;

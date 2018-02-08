@@ -46,7 +46,7 @@ namespace Questions.Utility
         {
             get
             {
-                return _Expressions.Select(s => s.Question);
+                return _Expressions.Select(s => s.Question).Distinct();
             }
         }
 

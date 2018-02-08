@@ -204,6 +204,8 @@ namespace Questions.Model
         {
             var commnonList = list.SelectMany(s => s.Item2.Split(',').Select(t => t.Trim().ToLower()));
             var match = GetBestMatch(commnonList, target.ToLower());
+            if (match == null) return null;
+
             var candidate = list.FirstOrDefault(s => s.Item2.ToLower().Contains(match));
             if (candidate != null) return candidate.Item1; else return null;
         }

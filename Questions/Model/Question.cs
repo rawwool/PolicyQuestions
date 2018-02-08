@@ -73,7 +73,13 @@ namespace Questions.Model
 
         public override string ToString()
         {
-            return $"{Ref} {Text}";
+            var children = this.LogicalChildren.Select(s => s.Ref);
+            string childrenRef = "None";
+            if (children != null && children.FirstOrDefault() != null)
+            {
+                childrenRef = children.Aggregate((a, b) => a + ", " + b);
+            }
+            return $"{Ref} {Text} Logical Children: {childrenRef}";
         }
     }
 }

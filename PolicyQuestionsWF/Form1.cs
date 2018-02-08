@@ -52,6 +52,7 @@ namespace PolicyQuestionsWF
                    QuestionControl control = new QuestionControl();
                    control.SetQuestion(s);
                    this.flowLayoutPanel1.Controls.Add(control);
+                   
                });
             questions.ForEach(s =>
             {
@@ -69,6 +70,7 @@ namespace PolicyQuestionsWF
                         q.ShowHide.Invoke(q.InvokeThisQuestion());
                     }
                 });
+                
             });
 
             foreach(var control in this.flowLayoutPanel1.Controls)
@@ -76,6 +78,14 @@ namespace PolicyQuestionsWF
                 if (control is QuestionControl) (control as QuestionControl).SetHeight();
                 if (control is QuestionControl) (control as QuestionControl).Refresh();
             }
+
+            questions.ForEach(s =>
+            {
+                if (s.ShowHide != null)
+                {
+                    s.ShowHide.Invoke(s.InvokeThisQuestion());
+                }
+            });
 
             this.ResumeLayout();
             this.Refresh();
