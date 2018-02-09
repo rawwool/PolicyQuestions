@@ -74,8 +74,8 @@ namespace Questions.Utility
 
         public bool Evaluate()
         {
-            bool result = false;
-
+            if (_GroupedExpression == null || _GroupedExpression.FirstOrDefault() == null) return true;
+            
             bool groupResult = true;
             foreach (var list in _GroupedExpression)
             {
@@ -106,9 +106,8 @@ namespace Questions.Utility
 
                 if (groupResult == false) break;
             }
-            result = groupResult;
 
-            return result;
+            return groupResult;
         }
     }
 }

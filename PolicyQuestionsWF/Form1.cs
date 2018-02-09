@@ -118,6 +118,7 @@ namespace PolicyQuestionsWF
                 
             });
 
+            /*
             foreach(var control in this.flowLayoutPanel1.Controls)
             {
                 if (control is QuestionControl) (control as QuestionControl).SetHeight();
@@ -130,7 +131,7 @@ namespace PolicyQuestionsWF
                 {
                     s.ShowHide.Invoke(s.InvokeThisQuestion());
                 }
-            });
+            });*/
             flowLayoutPanel1.Show();
             this.ResumeLayout();
             this.Refresh();
