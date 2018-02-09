@@ -53,8 +53,31 @@ namespace PolicyQuestionsWF
             try
             {
                 string json = Questions.Utility.Questions.GetResponseJSON();
+                this.SuspendLayout();
+                string viewerName = "JSONViewer";
+                label1.Text = "Response body";
+                var viewer = this.tableLayoutPanel2.Controls.Find(viewerName, true).FirstOrDefault() as TextBox;
+
+                if (viewer == null)
+                {
+                    //this.flowLayoutPanel1.Controls.Clear();
+                    TextBox textBox = new TextBox();
+                    textBox.Multiline = true;
+                    textBox.WordWrap = false;
+                    textBox.ScrollBars = ScrollBars.Both;
+                    textBox.Text = json;
+                    textBox.Dock = DockStyle.Fill;
+                    textBox.Name = viewerName;
+                    textBox.ReadOnly = true;
+                    tableLayoutPanel2.Controls.Add(textBox);
+                }
+                else
+                {
+                    viewer.Text = json;
+                }
+                this.flowLayoutPanel1.Hide();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
@@ -62,9 +85,8 @@ namespace PolicyQuestionsWF
 
         private void LoadQuestions(string group)
         {
-            
             this.SuspendLayout();
-
+            this.flowLayoutPanel1.Hide(); 
             this.flowLayoutPanel1.Controls.Clear();
 
             var questions = Questions.Utility.Questions.GetQuestion(group)
@@ -109,7 +131,7 @@ namespace PolicyQuestionsWF
                     s.ShowHide.Invoke(s.InvokeThisQuestion());
                 }
             });
-
+            flowLayoutPanel1.Show();
             this.ResumeLayout();
             this.Refresh();
         }
