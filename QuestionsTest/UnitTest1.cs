@@ -77,11 +77,28 @@ namespace QuestionsTest
             questions.Add(new Question() { Ref = "1A001", UserResponse = "Contents only" });
             questions.Add(new Question() { Ref = "1A016", UserResponse = "I do not work" });
             questions.Add(new Question() { Ref = "1A017", UserResponse = "I work full or part time" });
-            string line = "Mandatory if response to question 1A001 is \"Contents only\" or \"Buildings & Contents\"";
+            string line = "Mandatory if response to question 1A001 is \"Contents only\" or 1A001 is \"Buildings & Contents\"";
             var expressions = Reader.GetExpressionsForrPresentation(questions, line);
             Console.WriteLine(expressions);
             Assert.IsTrue(expressions.Evaluate());
         }
+
+        [TestMethod]
+        public void TestMethod6()
+        {
+            List<Question> questions = new List<Question>();
+            questions.Add(new Question() { Ref = "1A001", UserResponse = "Contents only", APIRequestField = "PolicyType" });
+            questions.Add(new Question() { Ref = "1A016", UserResponse = "I do not work", APIRequestField = "WorkStatus" });
+            questions.Add(new Question() { Ref = "1A017", UserResponse = "Architect", APIRequestField = "Work.Type" });
+            questions.Add(new Question() { Ref = "1A018", UserResponse = "5", APIRequestField = "Work.Duration" });
+            questions.Add(new Question() { Ref = "1A018", UserResponse = "Year", APIRequestField = "Work.Durations.Unit" });
+            string line = "Mandatory if response to question 1A001 is \"Contents only\" or 1A001 is \"Buildings & Contents\"";
+            var expressions = Reader.GetExpressionsForrPresentation(questions, line);
+            Console.WriteLine(expressions);
+            Assert.IsTrue(expressions.Evaluate());
+            Console.WriteLine(Reader.GetResponseJSON(questions));
+        }
+
 
     }
 }

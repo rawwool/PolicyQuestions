@@ -57,7 +57,7 @@ namespace Questions.Utility
 
         public override string ToString()
         {
-            if (_GroupedExpression == null || _GroupedExpression.FirstOrDefault() == null) return string.Empty;
+            if (_GroupedExpression == null || _GroupedExpression.FirstOrDefault() == null) return String.Empty;
             var result = _GroupedExpression.Select(s =>
                 {
                     var resultGroup =  s.Select(a =>

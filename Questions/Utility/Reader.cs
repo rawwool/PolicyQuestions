@@ -1,4 +1,5 @@
-﻿using Questions.Model;
+﻿using Newtonsoft.Json.Linq;
+using Questions.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,6 +72,91 @@ namespace Questions.Utility
             if (books != null) Marshal.ReleaseComObject(books);
             if (app != null) Marshal.ReleaseComObject(app);
             */
+        }
+
+        public static string GetResponseJSON(List<Question> listOfQUestions)
+        {
+            dynamic response = new JObject();
+            //response.ProductName = "Elbow Grease";
+            //response.Enabled = true;
+            //product.Price = 4.90m;
+            //product.StockCount = 9000;
+            //product.StockValue = 44100;
+            //product.Tags = new JArray("Real", "OnSale");
+
+            //Console.WriteLine(product.ToString());
+            Dictionary<string, JObject> dict = new Dictionary<string, JObject>();
+            listOfQUestions.ForEach(s =>
+            {
+                if (s.APIRequestField != null)
+                {
+                    var splits = s.APIRequestField.Split('.');
+                    if (splits.Length == 1)
+                    {
+                        response.Add(s.APIRequestField, s.UserResponse);
+                        //if (dict.ContainsKey(s.APIRequestField) == false)
+                        //{
+                        //    dict.Add(s.APIRequestField, new JObject());
+                        //}
+                    }
+                    else
+                    {
+                        IEnumerable<string> keys = GetPossibleKeys(splits);
+                        var parent = response;
+                        foreach (string key in keys)
+                        {
+                            if (dict.ContainsKey(key) == false)
+                            {
+                                dict.Add(key, new JObject());
+                                if (parent[key.Split('.').Last()] == null) parent.Add(key.Split('.').Last(), dict[key]);
+                            }
+                            parent = dict[key];
+                        }
+
+                        dict[keys.Last()].Add(s.APIRequestField.Split('.').Last(), s.UserResponse);
+                        
+                    }
+                }
+            });
+
+            return response.ToString();
+        }
+
+        /*
+         * 
+{
+  "PolicyType": "Contents only",
+  "Work": "I do not work",
+  "Work.Type": {
+    "Type": "Architect"
+  },
+  "Work.Duration": {
+    "Duration": "5"
+  },
+  "Work.Duration.Unit": {
+    "Unit": "Year"
+  }
+}
+         * 
+         * 
+         */
+        private static IEnumerable<string> GetPossibleKeys(IEnumerable<string> aPIRequestField)
+        {
+            int count = aPIRequestField.Count();
+            var list = aPIRequestField.ToList();
+            List<string> listReturn = new List<string>();
+            //list.Add(aPIRequestField.First());
+            for (int i = 0; i < count - 1; i++)
+            {
+                string key = string.Empty;
+                for (int j = 0; j <= i; j++ )
+                {
+                    key = key + "." + list[j];
+                }
+                key = key.TrimStart('.');
+                listReturn.Add(key);
+            }
+            return listReturn;
         }
 
         private static Excel._Worksheet GetWorksheet(Dictionary<string, Excel._Worksheet> dict, string s)
@@ -153,12 +239,14 @@ namespace Questions.Utility
                 int helpColumnIndex = GetColumnIndex(columns, "Help copy");
                 int questionTextColumnIndex = GetColumnIndex(columns, "Question Text");
                 int subQuestionTextColumnIndex = GetColumnIndex(columns, "sub-Question");
+                int apiRequestFIeldColumnINdex = GetColumnIndex(columns, "API Request Field");
                 Question parentQuestion = null;
                 for (int i = 2; i <= rowCount; i++)
                 {
                     var reference = GetValue(xlRangeValues, i, referenceColumnIndex);
                     string questionText = GetValue(xlRangeValues, i, questionTextColumnIndex);
                     string subQuestionText = GetValue(xlRangeValues, i, subQuestionTextColumnIndex);
+                    string displayRule = GetValue(xlRangeValues, i, displayRuleColumnIndex);
                     if (string.IsNullOrWhiteSpace(reference)
                         && string.IsNullOrWhiteSpace(questionText)
                         && string.IsNullOrWhiteSpace(subQuestionText)) continue;
@@ -171,9 +259,9 @@ namespace Questions.Utility
                         //ConditionParent = conditionParent == null? null : listOfQUestions.FirstOrDefault(f => f.Ref.Trim() == conditionParent.Item1),//Assuming that question has already been loaded
                         //ParentResponseForInvokingThisChildQuestion = conditionParent == null ? null : conditionParent.Item2,
                         //ConditionForPresentation = GetConditionForPresentation(listOfQUestions, GetValue(xlRangeValues, i, displayRuleColumnIndex)),
-                        Expressions = GetExpressionsForrPresentation(listOfQUestions, GetValue(xlRangeValues, i, displayRuleColumnIndex)),
+                        Expressions = GetExpressionsForrPresentation(listOfQUestions, displayRule),
                         DataCaptureType = ConvertToType<enumDataCaptureType>(GetValue(xlRangeValues, i, dataTypeColumnIndex)),
-
+                        APIRequestField = GetValue(xlRangeValues, i, apiRequestFIeldColumnINdex),
                         ResponseChoices = GetValue(xlRangeValues, i, answersColumnIndex).Split('\n').Where(s => s.Trim().Length > 0).ToList()
                     };
 
@@ -197,7 +285,7 @@ namespace Questions.Utility
 
                     question.Expressions.Questions.ToList().ForEach(s => s.LogicalChildren.Add(question));
 
-                    question.HelpText = $"{GetValue(xlRangeValues, i, helpColumnIndex)}\nDisplay rule:{question.Expressions.ToString()}";
+                    question.HelpText = $"{GetValue(xlRangeValues, i, helpColumnIndex)}\nDisplay rule:{displayRule}";
                 }
             }
             catch(InvalidOperationException ex)

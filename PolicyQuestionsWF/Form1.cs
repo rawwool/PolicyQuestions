@@ -27,6 +27,7 @@ namespace PolicyQuestionsWF
             foreach(var category in categories)
             {
                 Button label = new Button();
+                //label.BackColor = Color.FromArgb(216, 25, 54);
                 label.Margin = new Padding(3);
                 label.AutoSize = true;
                 label.Text = category;
@@ -43,10 +44,14 @@ namespace PolicyQuestionsWF
 
         private void LoadQuestions(string group)
         {
+            
             this.SuspendLayout();
+
             this.flowLayoutPanel1.Controls.Clear();
+
             var questions = Questions.Utility.Questions.GetQuestion(group)
                .ToList();
+            if (questions.FirstOrDefault() != null) label1.Text = questions.FirstOrDefault().Category; else label1.Text = string.Empty;
             questions.ForEach(s =>
                {
                    QuestionControl control = new QuestionControl();

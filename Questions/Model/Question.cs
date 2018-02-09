@@ -34,6 +34,8 @@ namespace Questions.Model
         public string UserResponse { get; set; }
         public string HelpText { get; set; }
 
+        public string APIRequestField { get; set; }
+
         public string InternalInfo
         {
             get
@@ -57,17 +59,6 @@ namespace Questions.Model
 
         public bool InvokeThisQuestion()
         {
-            /*
-            //ConditionForPresentation >> ParentQuestion, ThisQuestio'sResponse, IsthatPositive, Full Response
-            if (ConditionForPresentation == null || ConditionForPresentation.Item1 == null || ConditionForPresentation.Item2 == null) return true;
-            if (Fuzzy.GetExactMatch(new string[] { "NA", "N/A", "Not applicable" }, ConditionForPresentation.Item2, true) != null)
-                return true;
-
-            if (ConditionForPresentation.Item1.UserResponse == null && ConditionForPresentation.Item2 == null) return true;
-            bool result = Fuzzy.AreSimilar(ConditionForPresentation.Item1.UserResponse, ConditionForPresentation.Item2);
-
-            return ConditionForPresentation.Item3 ? result : !result;
-            */
             return this.Expressions.Evaluate();
         }
 
@@ -79,7 +70,7 @@ namespace Questions.Model
             {
                 childrenRef = children.Aggregate((a, b) => a + ", " + b);
             }
-            return $"{Ref} {Text} Logical Children: {childrenRef}";
+            return $"{Ref} {Text}\n{HelpText}\nLogical Children: {childrenRef}";
         }
     }
 }

@@ -29,11 +29,12 @@ namespace PolicyQuestionsWF
                     DateTimePicker picker = new DateTimePicker();
                     if (userResponse != null) picker.Value = DateTime.Parse(userResponse);
                     picker.ValueChanged += Picker_ValueChanged;
+                    
                     this.flowLayoutPanel1.Controls.Add(picker);
                     break;
                 case enumDataCaptureType.TextBox:
                     var textBox = new TextBox();
-                    textBox.Multiline = true;
+                    //textBox.Multiline = true;
                     textBox.Width = 350;
                     if (userResponse != null) textBox.Text = userResponse;
                     textBox.TextChanged += TextBox_TextChanged;
@@ -56,9 +57,7 @@ namespace PolicyQuestionsWF
                     {
                         RadioButton rb = new RadioButton();
                         rb.AutoSize = true;
-                        rb.BackColor = Color.White;
                         rb.Margin = new Padding(2);
-                        //rb.BackColor = Color.Red;
                         rb.Text = s;
                         if (userResponse != null && rb.Text == userResponse) rb.Checked = true;
                         rb.CheckedChanged += Rb_CheckedChanged;
@@ -67,7 +66,7 @@ namespace PolicyQuestionsWF
                     break;
                 case enumDataCaptureType.TextBoxAndNotSureCheckBox:
                     var textBox2 = new TextBox();
-                    textBox2.Multiline = true;
+                    //textBox2.Multiline = true;
 
                     this.flowLayoutPanel1.Controls.Add(textBox2);
                     CheckBox checkBox = new CheckBox();
