@@ -96,7 +96,7 @@ namespace QuestionsTest
             var expressions = Reader.GetExpressionsForrPresentation(questions, line);
             Console.WriteLine(expressions);
             Assert.IsTrue(expressions.Evaluate());
-            Console.WriteLine(Reader.GetResponseJSON(questions));
+            Console.WriteLine(Questions.Utility.Questions.GetResponseJSON());
         }
 
 

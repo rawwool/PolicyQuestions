@@ -26,20 +26,38 @@ namespace PolicyQuestionsWF
             flowLayoutPanel2.Controls.Clear();
             foreach(var category in categories)
             {
-                Button label = new Button();
-                //label.BackColor = Color.FromArgb(216, 25, 54);
-                label.Margin = new Padding(3);
-                label.AutoSize = true;
-                label.Text = category;
-                label.Size = new Size(160, 80);
-                label.Click += Label_Click;
-                flowLayoutPanel2.Controls.Add(label);
+                AddButton(category, Label_Click);
             }
+            AddButton("Response", ShowJson);
+        }
+
+        private void AddButton(string category, EventHandler handler)
+        {
+            Button button = new Button();
+            //label.BackColor = Color.FromArgb(216, 25, 54);
+            button.Margin = new Padding(3);
+            button.AutoSize = true;
+            button.Text = category;
+            button.Size = new Size(160, 80);
+            button.Click += handler;
+            flowLayoutPanel2.Controls.Add(button);
         }
 
         private void Label_Click(object sender, EventArgs e)
         {
             LoadQuestions((sender as Button).Text);
+        }
+
+        private void ShowJson(object sender, EventArgs e)
+        {
+            try
+            {
+                string json = Questions.Utility.Questions.GetResponseJSON();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void LoadQuestions(string group)

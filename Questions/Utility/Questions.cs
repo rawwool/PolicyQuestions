@@ -1,4 +1,5 @@
-﻿using Questions.Model;
+﻿using Newtonsoft.Json.Linq;
+using Questions.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,112 @@ namespace Questions.Utility
         public static void LoadQuestions(string file, IEnumerable<string> tabs)
         {
             _Questions = Reader.Read(file, tabs);
+        }
+
+
+        public static string GetResponseJSON()
+        {
+            dynamic response = new JObject();
+            //response.ProductName = "Elbow Grease";
+            //response.Enabled = true;
+            //product.Price = 4.90m;
+            //product.StockCount = 9000;
+            //product.StockValue = 44100;
+            //product.Tags = new JArray("Real", "OnSale");
+
+            //Console.WriteLine(product.ToString());
+            Dictionary<string, JObject> dict = new Dictionary<string, JObject>();
+            _Questions.ForEach(s =>
+            {
+                if (s.APIRequestField != null)
+                {
+                    var splits = s.APIRequestField.Split('.');
+                    if (splits.Length == 1)
+                    {
+                        //if (response.ContainsKey(s.APIRequestField) == false)
+                        if (DoesKeyExist(response, s.APIRequestField) == false)
+                        {
+                            response.Add(s.APIRequestField, s.UserResponse);
+                        }
+                        //if (dict.ContainsKey(s.APIRequestField) == false)
+                        //{
+                        //    dict.Add(s.APIRequestField, new JObject());
+                        //}
+                    }
+                    else
+                    {
+                        IEnumerable<string> keys = GetPossibleKeys(splits);
+                        var parent = response;
+                        foreach (string key in keys)
+                        {
+                            if (dict.ContainsKey(key) == false)
+                            {
+                                dict.Add(key, new JObject());
+                                if (DoesKeyExist(parent, key.Split('.').Last()) == false) parent.Add(key.Split('.').Last(), dict[key]);
+                            }
+                            parent = dict[key];
+                        }
+
+                    if (DoesKeyExist(dict[keys.Last()], s.APIRequestField.Split('.').Last()) == false)
+                        dict[keys.Last()].Add(s.APIRequestField.Split('.').Last(), s.UserResponse);
+
+                    }
+                }
+            });
+
+            return response.ToString();
+        }
+
+        private static bool DoesKeyExist(JObject jobject, string key)
+        {
+            bool exists = false;
+
+            exists = jobject.Descendants()
+                            .Where(t => t.Type == JTokenType.Property /*&& ((JProperty)t).Name == "id"*/)
+                            .Select(p => ((JProperty)p).Name)
+                            .FirstOrDefault(s => s == key) != null;
+
+            //if (templateIdList.IndexOf(key) != -1)
+            //{
+            //    exists = true;
+            //}
+            return exists;
+        }
+        /*
+         * 
+{
+  "PolicyType": "Contents only",
+  "Work": "I do not work",
+  "Work.Type": {
+    "Type": "Architect"
+  },
+  "Work.Duration": {
+    "Duration": "5"
+  },
+  "Work.Duration.Unit": {
+    "Unit": "Year"
+  }
+}
+         * 
+         * 
+         */
+        private static IEnumerable<string> GetPossibleKeys(IEnumerable<string> aPIRequestField)
+        {
+            int count = aPIRequestField.Count();
+            var list = aPIRequestField.ToList();
+            List<string> listReturn = new List<string>();
+            //list.Add(aPIRequestField.First());
+            for (int i = 0; i < count - 1; i++)
+            {
+                string key = string.Empty;
+                for (int j = 0; j <= i; j++)
+                {
+                    key = key + "." + list[j];
+                }
+                key = key.TrimStart('.');
+                listReturn.Add(key);
+            }
+            return listReturn;
         }
 
         public static IEnumerable<string> GetCategtories()

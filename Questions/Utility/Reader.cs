@@ -74,90 +74,6 @@ namespace Questions.Utility
             */
         }
 
-        public static string GetResponseJSON(List<Question> listOfQUestions)
-        {
-            dynamic response = new JObject();
-            //response.ProductName = "Elbow Grease";
-            //response.Enabled = true;
-            //product.Price = 4.90m;
-            //product.StockCount = 9000;
-            //product.StockValue = 44100;
-            //product.Tags = new JArray("Real", "OnSale");
-
-            //Console.WriteLine(product.ToString());
-            Dictionary<string, JObject> dict = new Dictionary<string, JObject>();
-            listOfQUestions.ForEach(s =>
-            {
-                if (s.APIRequestField != null)
-                {
-                    var splits = s.APIRequestField.Split('.');
-                    if (splits.Length == 1)
-                    {
-                        response.Add(s.APIRequestField, s.UserResponse);
-                        //if (dict.ContainsKey(s.APIRequestField) == false)
-                        //{
-                        //    dict.Add(s.APIRequestField, new JObject());
-                        //}
-                    }
-                    else
-                    {
-                        IEnumerable<string> keys = GetPossibleKeys(splits);
-                        var parent = response;
-                        foreach (string key in keys)
-                        {
-                            if (dict.ContainsKey(key) == false)
-                            {
-                                dict.Add(key, new JObject());
-                                if (parent[key.Split('.').Last()] == null) parent.Add(key.Split('.').Last(), dict[key]);
-                            }
-                            parent = dict[key];
-                        }
-
-                        dict[keys.Last()].Add(s.APIRequestField.Split('.').Last(), s.UserResponse);
-                        
-                    }
-                }
-            });
-
-            return response.ToString();
-        }
-
-        /*
-         * 
-{
-  "PolicyType": "Contents only",
-  "Work": "I do not work",
-  "Work.Type": {
-    "Type": "Architect"
-  },
-  "Work.Duration": {
-    "Duration": "5"
-  },
-  "Work.Duration.Unit": {
-    "Unit": "Year"
-  }
-}
-         * 
-         * 
-         */
-        private static IEnumerable<string> GetPossibleKeys(IEnumerable<string> aPIRequestField)
-        {
-            int count = aPIRequestField.Count();
-            var list = aPIRequestField.ToList();
-            List<string> listReturn = new List<string>();
-            //list.Add(aPIRequestField.First());
-            for (int i = 0; i < count - 1; i++)
-            {
-                string key = string.Empty;
-                for (int j = 0; j <= i; j++ )
-                {
-                    key = key + "." + list[j];
-                }
-                key = key.TrimStart('.');
-                listReturn.Add(key);
-            }
-            return listReturn;
-        }
 
         private static Excel._Worksheet GetWorksheet(Dictionary<string, Excel._Worksheet> dict, string s)
         {
@@ -204,7 +120,7 @@ namespace Questions.Utility
             try
             {
                 object value = values.GetValue(row, column);
-                if (value != null) return value.ToString();
+                if (value != null) return value.ToString().Trim();
                 else return string.Empty;
             }
             catch
