@@ -155,7 +155,8 @@ namespace Questions.Utility
                 int helpColumnIndex = GetColumnIndex(columns, "Help copy");
                 int questionTextColumnIndex = GetColumnIndex(columns, "Question Text");
                 int subQuestionTextColumnIndex = GetColumnIndex(columns, "sub-Question");
-                int apiRequestFIeldColumnINdex = GetColumnIndex(columns, "API Request Field");
+                int apiRequestFieldColumnIndex = GetColumnIndex(columns, "API Request Field");
+                int apiResourceFieldIndex = GetColumnIndex(columns, "API Resource");
                 Question parentQuestion = null;
                 for (int i = 2; i <= rowCount; i++)
                 {
@@ -177,7 +178,8 @@ namespace Questions.Utility
                         //ConditionForPresentation = GetConditionForPresentation(listOfQUestions, GetValue(xlRangeValues, i, displayRuleColumnIndex)),
                         Expressions = GetExpressionsForrPresentation(listOfQUestions, displayRule),
                         DataCaptureType = ConvertToType<enumDataCaptureType>(GetValue(xlRangeValues, i, dataTypeColumnIndex)),
-                        APIRequestField = GetValue(xlRangeValues, i, apiRequestFIeldColumnINdex),
+                        APIRequestField = GetValue(xlRangeValues, i, apiRequestFieldColumnIndex),
+                        APIResource = GetValue(xlRangeValues, i, apiResourceFieldIndex),
                         ResponseChoices = GetValue(xlRangeValues, i, answersColumnIndex).Split('\n').Where(s => s.Trim().Length > 0).ToList()
                     };
 

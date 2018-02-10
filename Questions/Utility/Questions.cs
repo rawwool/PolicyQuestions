@@ -18,8 +18,15 @@ namespace Questions.Utility
             _Questions = Reader.Read(file, tabs);
         }
 
-
         public static string GetResponseJSON()
+        {
+            return _Questions.GroupBy(s => s.APIResource)
+                .OrderBy(s=>s.Key)
+                .Select(s => new { Resource = s.Key, JSON = GetResponseJSON(s.ToList()) })
+                .Select(s => $"{s.Resource}{Environment.NewLine}{s.JSON}")
+                .Aggregate((a, b) => $"{a}{Environment.NewLine}{Environment.NewLine}{b}");
+        }
+        public static string GetResponseJSON(List<Question> listOfQuestions)
         {
             dynamic response = new JObject();
             //response.ProductName = "Elbow Grease";
@@ -31,7 +38,8 @@ namespace Questions.Utility
 
             //Console.WriteLine(product.ToString());
             Dictionary<string, JObject> dict = new Dictionary<string, JObject>();
-            _Questions.ForEach(s =>
+
+            listOfQuestions.ForEach(s =>
             {
                 if (s.APIRequestField != null)
                 {

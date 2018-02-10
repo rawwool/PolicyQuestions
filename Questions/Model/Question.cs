@@ -36,6 +36,7 @@ namespace Questions.Model
 
         public string APIRequestField { get; set; }
 
+        public string APIResource { get; set; }
         public string InternalInfo
         {
             get
