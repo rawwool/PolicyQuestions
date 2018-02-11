@@ -71,7 +71,7 @@ namespace Questions.Model
             {
                 childrenRef = children.Aggregate((a, b) => a + ", " + b);
             }
-            return $"{Ref} {Text}\n{HelpText}\nLogical Children: {childrenRef}";
+            return $"{Ref} {Text}\n{HelpText}\n{APIResource}\n{APIRequestField}\nLogical Children: {childrenRef}";
         }
     }
 }

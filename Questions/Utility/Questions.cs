@@ -8,6 +8,16 @@ using System.Threading.Tasks;
 
 namespace Questions.Utility
 {
+    public class APIRequest
+    {
+        public string RelativeURL { get; set; }
+        public string JSONBody { get; set; }
+
+        public override string ToString()
+        {
+            return $"{RelativeURL}{Environment.NewLine}{JSONBody}";
+        }
+    }
     public class Questions
     {
         private static List<Question> _Questions;
@@ -18,13 +28,18 @@ namespace Questions.Utility
             _Questions = Reader.Read(file, tabs);
         }
 
-        public static string GetResponseJSON()
+        public static IEnumerable<APIRequest> GetResponseJSON()
         {
-            return _Questions.GroupBy(s => s.APIResource)
-                .OrderBy(s=>s.Key)
+            var questions = new List<Question>();
+            questions.AddRange(_Questions.SelectMany(s => s.Children));
+            questions.AddRange(_Questions);
+           // var groups = _Questions.GroupBy(s => s.APIResource);
+            return questions.GroupBy(s => s.APIResource)
+                .OrderBy(s => s.Key)
                 .Select(s => new { Resource = s.Key, JSON = GetResponseJSON(s.ToList()) })
-                .Select(s => $"{s.Resource}{Environment.NewLine}{s.JSON}")
-                .Aggregate((a, b) => $"{a}{Environment.NewLine}{Environment.NewLine}{b}");
+                .Select(s => new APIRequest() { RelativeURL = s.Resource, JSONBody = s.JSON });
+                //.Select(s => $"{s.Resource}{Environment.NewLine}{s.JSON}")
+                //.Aggregate((a, b) => $"{a}{Environment.NewLine}{Environment.NewLine}{b}");                
         }
         public static string GetResponseJSON(List<Question> listOfQuestions)
         {

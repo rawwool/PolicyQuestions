@@ -52,10 +52,51 @@ namespace PolicyQuestionsWF
         {
             try
             {
-                string json = Questions.Utility.Questions.GetResponseJSON();
+                var response = Questions.Utility.Questions.GetResponseJSON();
                 this.SuspendLayout();
                 string viewerName = "JSONViewer";
                 label1.Text = "Response body";
+
+                this.flowLayoutPanel1.Controls.Clear();
+                response.ToList().ForEach(s =>
+                {
+                    LinkLabel linkLabel = new LinkLabel();
+                    linkLabel.AutoSize = true;
+                    linkLabel.Text = s.RelativeURL;
+                    linkLabel.Tag = s;
+                    linkLabel.Click += LinkLabel_Click;
+                    this.flowLayoutPanel1.Controls.Add(linkLabel);
+                    TextBox textBox = new TextBox();
+                    textBox.Multiline = true;
+                    textBox.WordWrap = false;
+                    textBox.ScrollBars = ScrollBars.Both;
+                    textBox.Text = s.JSONBody;
+                    //textBox.Dock = DockStyle.Fill;    
+                    textBox.WordWrap = true;
+                    textBox.ScrollBars = ScrollBars.None;
+                    textBox.BorderStyle = BorderStyle.None;
+                    //textBox.BackColor = 
+                    textBox.Width = this.flowLayoutPanel1.Width 
+                    - 2*this.flowLayoutPanel1.Padding.Left
+                    - 2*this.flowLayoutPanel1.Margin.Left
+                    - 2*textBox.Margin.Left;
+                    Label label = new Label();
+                    label.Width = textBox.Width;
+                    label.AutoSize = true;
+                    label.Font = this.flowLayoutPanel1.Font;
+                    label.Text = s.JSONBody;
+                    this.flowLayoutPanel1.Controls.Add(label);
+                    //label.Refresh();
+                    textBox.Height = label.Height + 2 * textBox.Margin.Top;
+                    textBox.Left = this.flowLayoutPanel1.Margin.Left;
+                    textBox.Top = this.flowLayoutPanel1.Margin.Top;
+                    textBox.Name = viewerName;
+                    textBox.ReadOnly = true;
+                    textBox.BackColor = SystemColors.ControlLightLight;
+                    this.flowLayoutPanel1.Controls.Add(textBox);
+                    this.flowLayoutPanel1.Controls.Remove(label);
+                });
+                /*
                 var viewer = this.tableLayoutPanel2.Controls.Find(viewerName, true).FirstOrDefault() as TextBox;
 
                 if (viewer == null)
@@ -76,11 +117,17 @@ namespace PolicyQuestionsWF
                     viewer.Text = json;
                 }
                 this.flowLayoutPanel1.Hide();
+                */
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        private void LinkLabel_Click(object sender, EventArgs e)
+        {
+            //throw new NotImplementedException();
         }
 
         private void LoadQuestions(string group)
