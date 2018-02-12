@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -17,6 +18,7 @@ namespace PolicyQuestionsWF
         public Form1()
         {
             InitializeComponent();
+            this.Text = GetCaption(""); 
         }
            
 
@@ -223,6 +225,7 @@ namespace PolicyQuestionsWF
 
                         LoadQuestions("About you");
                         PolulateTabs();
+                        this.Text = GetCaption(ofd.FileName);
                     }
                 }
             }
@@ -230,6 +233,14 @@ namespace PolicyQuestionsWF
             {
                 MessageBox.Show(this, ex.Message, "Error in reading", MessageBoxButtons.OK,  MessageBoxIcon.Error);
             }
+        }
+
+        private string GetCaption(string fileName)
+        {
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            string caption = $"Prashn v{version.Major}.{version.Minor}";
+            if (!string.IsNullOrEmpty(fileName)) caption +=  $" - {Path.GetFileNameWithoutExtension(fileName)}";
+            return caption;
         }
     }
 }

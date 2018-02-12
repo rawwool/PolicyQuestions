@@ -34,14 +34,16 @@ namespace Questions.Utility
             questions.AddRange(_Questions.SelectMany(s => s.Children));
             questions.AddRange(_Questions);
            // var groups = _Questions.GroupBy(s => s.APIResource);
-            return questions.GroupBy(s => s.APIResource)
+            return questions
+                .GroupBy(s => s.APIResource)
                 .OrderBy(s => s.Key)
-                .Select(s => new { Resource = s.Key, JSON = GetResponseJSON(s.ToList()) })
+                .Select(s => new { Resource = s.Key, JSON = GetResponseJSON(s) })
                 .Select(s => new APIRequest() { RelativeURL = s.Resource, JSONBody = s.JSON });
                 //.Select(s => $"{s.Resource}{Environment.NewLine}{s.JSON}")
                 //.Aggregate((a, b) => $"{a}{Environment.NewLine}{Environment.NewLine}{b}");                
         }
-        public static string GetResponseJSON(List<Question> listOfQuestions)
+
+        public static string GetResponseJSON(IEnumerable<Question> listOfQuestions)
         {
             dynamic response = new JObject();
             //response.ProductName = "Elbow Grease";
@@ -52,47 +54,83 @@ namespace Questions.Utility
             //product.Tags = new JArray("Real", "OnSale");
 
             //Console.WriteLine(product.ToString());
-            Dictionary<string, JObject> dict = new Dictionary<string, JObject>();
+            Dictionary<string, JContainer> dict = new Dictionary<string, JContainer>();
 
-            listOfQuestions.ForEach(s =>
+            listOfQuestions
+                .OrderBy(s=>s.Ref)
+                .ToList()
+                .ForEach(s =>
             {
                 if (s.APIRequestField != null)
                 {
+                    var parent = response;
                     var splits = s.APIRequestField.Split('.');
+                    //previousClaims[]
+                    //previuosClaims.Year
+                    //
                     if (splits.Length == 1)
                     {
                         //if (response.ContainsKey(s.APIRequestField) == false)
-                        if (DoesKeyExist(response, s.APIRequestField) == false)
+                        if (DoesKeyExist(response, s.APIRequestField.TrimEnd('[', ']')) == false)
                         {
-                            response.Add(s.APIRequestField, s.UserResponse);
+                            if (s.APIRequestField.EndsWith("[]"))
+                            {
+                                dict.Add(s.APIRequestField.TrimEnd('[', ']'), new JArray());
+
+                                response.Add(s.APIRequestField.TrimEnd('[', ']'), dict[s.APIRequestField.TrimEnd('[', ']')]);
+                                //parent = dict[s.APIRequestField.TrimEnd('[', ']')];
+                            }
+                            else
+                            {
+                                response.Add(s.APIRequestField, s.UserResponse);
+                            }
                         }
-                        //if (dict.ContainsKey(s.APIRequestField) == false)
-                        //{
-                        //    dict.Add(s.APIRequestField, new JObject());
-                        //}
                     }
                     else
                     {
                         IEnumerable<string> keys = GetPossibleKeys(splits);
-                        var parent = response;
+
                         foreach (string key in keys)
                         {
                             if (dict.ContainsKey(key) == false)
                             {
                                 dict.Add(key, new JObject());
-                                if (DoesKeyExist(parent, key.Split('.').Last()) == false) parent.Add(key.Split('.').Last(), dict[key]);
+                                if (DoesKeyExist(parent, key.Split('.').Last()) == false)
+                                {
+                                    parent.Add(key.Split('.').Last(), dict[key]);
+                                }
                             }
                             parent = dict[key];
                         }
 
-                    if (DoesKeyExist(dict[keys.Last()], s.APIRequestField.Split('.').Last()) == false)
-                        dict[keys.Last()].Add(s.APIRequestField.Split('.').Last(), s.UserResponse);
-
+                        if (dict[keys.Last()] is JObject && DoesKeyExist(dict[keys.Last()] as JObject, s.APIRequestField.Split('.').Last()) == false)
+                            (dict[keys.Last()] as JObject).Add(s.APIRequestField.Split('.').Last(), s.UserResponse);
+                        if (dict[keys.Last()] is JArray)
+                        {
+                            string propName = s.APIRequestField.Split('.').Last();
+                            JObject jobject = GetExistingOrNewJObject(dict[keys.Last()] as JArray, propName);
+                            jobject.Add(propName, s.UserResponse);
+                            //(dict[keys.Last()] as JArray).Add(jobject);
+                        }
                     }
                 }
             });
 
             return response.ToString();
+        }
+
+        private static JObject GetExistingOrNewJObject(JArray array, string name)
+        {
+            JObject jo = array.Children<JObject>()
+                //.FirstOrDefault(o => o["text"] != null && o["text"].ToString() == "Two");
+                .FirstOrDefault(o => o[name] == null);
+            if (jo == null)
+            {
+                jo = new JObject();
+                array.Add(jo);
+                return jo;
+            }
+            return jo;
         }
 
         private static bool DoesKeyExist(JObject jobject, string key)

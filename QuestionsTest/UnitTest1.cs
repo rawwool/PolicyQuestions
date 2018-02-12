@@ -92,11 +92,28 @@ namespace QuestionsTest
             questions.Add(new Question() { Ref = "1A017", UserResponse = "Architect", APIRequestField = "Work.Type" });
             questions.Add(new Question() { Ref = "1A018", UserResponse = "5", APIRequestField = "Work.Duration" });
             questions.Add(new Question() { Ref = "1A018", UserResponse = "Year", APIRequestField = "Work.Durations.Unit" });
+            questions.Add(new Question() { Ref = "1A019", UserResponse = "2", APIRequestField = "previousClaims" });
+            questions.Add(new Question() { Ref = "1A019a", UserResponse = "Year", APIRequestField = "previousClaims.Year" });
+            questions.Add(new Question() { Ref = "1A019b", UserResponse = "Value", APIRequestField = "previousClaims.Value" });
             string line = "Mandatory if response to question 1A001 is \"Contents only\" or 1A001 is \"Buildings & Contents\"";
             var expressions = Reader.GetExpressionsForrPresentation(questions, line);
             Console.WriteLine(expressions);
             Assert.IsTrue(expressions.Evaluate());
-            Console.WriteLine(Questions.Utility.Questions.GetResponseJSON());
+            Console.WriteLine(Questions.Utility.Questions.GetResponseJSON(questions));
+        }
+
+        [TestMethod]
+        public void TestMethod7()
+        {
+            List<Question> questions = new List<Question>();
+            questions.Add(new Question() { Ref = "1A019", UserResponse = "1", APIRequestField = "previousClaims[]" });
+            questions.Add(new Question() { Ref = "1A019a", UserResponse = "1999", APIRequestField = "previousClaims.Year" });
+            questions.Add(new Question() { Ref = "1A019b", UserResponse = "24,500", APIRequestField = "previousClaims.Value" });
+            //string line = "Mandatory if response to question 1A001 is \"Contents only\" or 1A001 is \"Buildings & Contents\"";
+            //var expressions = Reader.GetExpressionsForrPresentation(questions, line);
+            //Console.WriteLine(expressions);
+            //Assert.IsTrue(expressions.Evaluate());
+            Console.WriteLine(Questions.Utility.Questions.GetResponseJSON(questions));
         }
 
 
