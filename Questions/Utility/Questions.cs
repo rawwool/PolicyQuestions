@@ -57,7 +57,11 @@ namespace Questions.Utility
             Dictionary<string, JContainer> dict = new Dictionary<string, JContainer>();
 
             listOfQuestions
-                .OrderBy(s=>s.Ref)
+                //.OrderBy(s=>s.Ref)
+                .OrderByHierarchy()
+                //.Select(s=> new { Q = s, SortField = GetSortField(s)})
+                //.OrderBy(s=>s.SortField)
+                //.Select(s=>s.Q)
                 .ToList()
                 .ForEach(s =>
             {
@@ -110,13 +114,22 @@ namespace Questions.Utility
                             string propName = s.APIRequestField.Split('.').Last();
                             JObject jobject = GetExistingOrNewJObject(dict[keys.Last()] as JArray, propName);
                             jobject.Add(propName, s.UserResponse);
-                            //(dict[keys.Last()] as JArray).Add(jobject);
                         }
                     }
                 }
             });
 
             return response.ToString();
+        }
+
+        private static string GetSortField(Question s)
+        {
+            var splits = s.APIRequestField.Split('.');
+            if (splits.Length > 1)
+            {
+                return splits.Take(splits.Length - 1).Aggregate((a, b) => $"{a}.{b}");
+            }
+            return s.APIRequestField;
         }
 
         private static JObject GetExistingOrNewJObject(JArray array, string name)

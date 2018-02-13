@@ -117,5 +117,73 @@ namespace QuestionsTest
         }
 
 
+        [TestMethod]
+        public void TestMethod8()
+        {
+            /*
+             {
+  "contents": {
+    "jewelleryAndWatches": {
+      "valuableItems[]": "1999",
+      "value": "1",
+      "hasSafe": "24,500",
+      "valuableItems": {
+        "type": "1999",
+        "desc": "24,500",
+        "yearsOwned": "1",
+        "value": "1999"
+      }
+    },
+    "artAndCollections[]": "1",
+    "artAndCollections": {
+      "category": "1999",
+      "value": "24,500",
+      "valuableItems[]": "1",
+      "valuableItems": {
+        "desc": "1999",
+        "value": "24,500",
+        "valuationYear": "24,500"
+      }
+    },
+    "otherValuableItems": "24,500",
+    "totalValue": "24,500"
+  },
+  "previousClaims": {
+    "Value": "24,500"
+  }
+}
+             */
+            List<Question> questions = new List<Question>();
+            questions.Add(new Question() { Ref = "1A019", UserResponse = "100000", APIRequestField = "contents.jewelleryAndWatches.value" });
+            questions.Add(new Question() { Ref = "1A019a", UserResponse = "Invisible", APIRequestField = "contents.jewelleryAndWatches.valuableItems[]" });
+            questions.Add(new Question() { Ref = "1A019b", UserResponse = "Yes", APIRequestField = "contents.jewelleryAndWatches.hasSafe" });
+            questions.Add(new Question() { Ref = "1A019c", UserResponse = "Invisible", APIRequestField = "contents.jewelleryAndWatches" });
+            questions.Add(new Question() { Ref = "1A019d", UserResponse = "Jewels", APIRequestField = "contents.jewelleryAndWatches.valuableItems.type" });
+            questions.Add(new Question() { Ref = "1A019e", UserResponse = "diamond", APIRequestField = "contents.jewelleryAndWatches.valuableItems.desc" });
+            questions.Add(new Question() { Ref = "1A019f", UserResponse = "21", APIRequestField = "contents.jewelleryAndWatches.valuableItems.yearsOwned" });
+            questions.Add(new Question() { Ref = "1A019g", UserResponse = "20000", APIRequestField = "contents.jewelleryAndWatches.valuableItems.value" });
+            questions.Add(new Question() { Ref = "1A019h", UserResponse = "24500", APIRequestField = "previousClaims.Value" });
+            questions.Add(new Question() { Ref = "1A019i", UserResponse = "Invisible", APIRequestField = "contents.artAndCollections[]" });
+            questions.Add(new Question() { Ref = "1A019j", UserResponse = "Paintings", APIRequestField = "contents.artAndCollections.category" });
+            questions.Add(new Question() { Ref = "1A019k", UserResponse = "29500", APIRequestField = "contents.artAndCollections.value" });
+            questions.Add(new Question() { Ref = "1A019l", UserResponse = "Invisible", APIRequestField = "contents.artAndCollections.valuableItems[]" });
+            questions.Add(new Question() { Ref = "1A019m", UserResponse = "Picaso", APIRequestField = "contents.artAndCollections.valuableItems.desc" });
+            questions.Add(new Question() { Ref = "1A019n", UserResponse = "240500", APIRequestField = "contents.artAndCollections.valuableItems.value" });
+            questions.Add(new Question() { Ref = "1A019o", UserResponse = "2015", APIRequestField = "contents.artAndCollections.valuableItems.valuationYear" });
+            questions.Add(new Question() { Ref = "1A019p", UserResponse = "Invisible", APIRequestField = "contents.otherValuableItems" });
+            questions.Add(new Question() { Ref = "1A019q", UserResponse = "Tesla", APIRequestField = "contents.otherValuableItems.desc" });
+            questions.Add(new Question() { Ref = "1A019r", UserResponse = "84500", APIRequestField = "contents.otherValuableItems.value" });
+            questions.Add(new Question() { Ref = "1A019s", UserResponse = "624500", APIRequestField = "contents.totalValue" });
+            //string line = "Mandatory if response to question 1A001 is \"Contents only\" or 1A001 is \"Buildings & Contents\"";
+            //var expressions = Reader.GetExpressionsForrPresentation(questions, line);
+            //Console.WriteLine(expressions);
+            //Assert.IsTrue(expressions.Evaluate());
+            var result = Questions.Utility.Extension.QuestionNode.GetOrderedQuestionTree(questions);
+            foreach (var res in result)
+                Console.WriteLine(res.APIRequestField);
+            Console.WriteLine(Questions.Utility.Questions.GetResponseJSON(questions));
+        }
+
+
     }
 }
