@@ -1,4 +1,5 @@
-﻿using Questions.Model;
+﻿using Newtonsoft.Json.Linq;
+using Questions.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -93,11 +94,20 @@ namespace Questions.Utility
         {
             public Question Question { get; set; }
             private List<QuestionNode> Children { get; }
+            private List<List<QuestionNode>> ArrayOfChildren { get; }
             public QuestionNode Parent { get; set; }
 
             public QuestionNode(Question question)
             {
-                Children = new List<QuestionNode>();
+                if (question.APIRequestField.EndsWith("[]"))
+                {
+                    ArrayOfChildren = new List<List<QuestionNode>>();
+                }
+                else
+                {
+                    Children = new List<QuestionNode>();
+                }
+                
                 Question = question;
             }
 
@@ -105,6 +115,20 @@ namespace Questions.Utility
             {
                 Children.Add(node);
                 node.Parent = this;
+            }
+
+            public void AddToArrayOfChildren(QuestionNode node)
+            {
+                if (ArrayOfChildren != null)
+                {
+                    var list = ArrayOfChildren.FirstOrDefault(s => s.FirstOrDefault(d => d.Question.APIRequestField == node.Question.APIRequestField) == null);
+                    if (list == null)
+                    {
+                        list = new List<QuestionNode>();
+                        ArrayOfChildren.Add(list);
+                    }
+                    list.Add(node);
+                }
             }
 
             public override string ToString()
@@ -172,7 +196,7 @@ namespace Questions.Utility
                 Dictionary<string, QuestionNode> dict = new Dictionary<string, QuestionNode>();
                 foreach (var question in questions)
                 {
-                    var key = question.APIRequestField.TrimEnd('[', ']');
+                    var key = question.APIRequestField;//.TrimEnd('[', ']');
                     if (!dict.ContainsKey(key))
                         dict.Add(key, new QuestionNode(question));
                     else
@@ -192,11 +216,53 @@ namespace Questions.Utility
                             dict[parentKey].AddChild(dict[key]);
                             keysAddedtoTree.Add(key);
                         }
+                        else if (dict.ContainsKey(parentKey+"[]") && dict.ContainsKey(key))
+                        {
+                            dict[parentKey + "[]"].AddToArrayOfChildren(dict[key]);
+                            keysAddedtoTree.Add(key);
+                        }
                     }
                 }
 
                 keysAddedtoTree.ForEach(s => dict.Remove(s));
                 var tree = dict.Values.Select(s => s);
+
+                /*
+                dynamic response = new JObject();
+                //response.ProductName = "Elbow Grease";
+                //response.Enabled = true;
+                //product.Price = 4.90m;
+                //product.StockCount = 9000;
+                //product.StockValue = 44100;
+                //product.Tags = new JArray("Real", "OnSale");
+
+                //Console.WriteLine(product.ToString());
+                var jobject = response;
+                foreach(var item in tree)
+                {
+                    var splits = item.Question.APIRequestField.Split('.');
+                    //foreach(var jsonNode in splits)
+                    for (int i = 0; i < splits.Count(); i++)
+                    {
+                        var key = splits[i].TrimEnd('[', ']');
+                        if (DoesKeyExist(jobject, key) == false)
+                        {
+                            if (i == splits.Count() - 1 && splits[i].EndsWith("[]"))
+                            {
+                                JArray array = new JArray();
+                                jobject.Add(key, array);
+                            }
+                            else
+                            {
+                                JObject newjo = new JObject();
+                                jobject.Add(key, newjo);
+                                jobject = newjo;
+                            }
+                        }
+
+                    }
+                }
+                */
 
                 //Now walk the tree and flatten it.
                 List<Question> list = new List<Question>();
@@ -208,14 +274,54 @@ namespace Questions.Utility
                 return list;
             }
 
+            private static JObject GetExistingOrNewJObject(JArray array, string name)
+            {
+                JObject jo = array.Children<JObject>()
+                    //.FirstOrDefault(o => o["text"] != null && o["text"].ToString() == "Two");
+                    .FirstOrDefault(o => o[name] == null);
+                if (jo == null)
+                {
+                    jo = new JObject();
+                    array.Add(jo);
+                    return jo;
+                }
+                return jo;
+            }
+
+            
+
+            private static bool DoesKeyExist(JObject jobject, string key)
+            {
+                bool exists = false;
+
+                exists = jobject.Descendants()
+                                .Where(t => t.Type == JTokenType.Property /*&& ((JProperty)t).Name == "id"*/)
+                                .Select(p => ((JProperty)p).Name)
+                                .FirstOrDefault(s => s == key) != null;
+
+                //if (templateIdList.IndexOf(key) != -1)
+                //{
+                //    exists = true;
+                //}
+                return exists;
+            }
 
             private static void RecursivelyAdd(List<Question> list, QuestionNode node)
             {
                 list.Add(node.Question);
+                if (node.Children !=null)
                 node.Children.ForEach(s =>
                 {
                     RecursivelyAdd(list, s);
                 });
+                if (node.ArrayOfChildren != null)
+                {
+                    foreach(var array in node.ArrayOfChildren)
+                    {
+                        foreach (var q in array)
+                            RecursivelyAdd(list, q);
+                    }
+                }
             }
         }
 

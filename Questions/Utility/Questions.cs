@@ -43,6 +43,33 @@ namespace Questions.Utility
                 //.Aggregate((a, b) => $"{a}{Environment.NewLine}{Environment.NewLine}{b}");                
         }
 
+        /// <summary>
+        /// dynamic response = new JObject();
+        //response.ProductName = "Elbow Grease";
+        //response.Enabled = true;
+        //product.Price = 4.90m;
+        //product.StockCount = 9000;
+        //product.StockValue = 44100;
+        //product.Tags = new JArray("Real", "OnSale");
+        //Console.WriteLine(product.ToString());
+        /// </summary>
+        /// <param name="questions"></param>
+        /// <returns></returns>
+        public static string BuildResponseJSON(IEnumerable<Question> questions)
+        {
+            dynamic response = new JObject();
+            Dictionary<string, JContainer> dict = new Dictionary<string, JContainer>();
+            questions
+                .OrderByHierarchy()
+                .Where(s=> !string.IsNullOrEmpty(s.APIRequestField))
+                .ToList()
+                .ForEach(s =>
+                {
+
+                });
+            return null;
+        }
+
         public static string GetResponseJSON(IEnumerable<Question> listOfQuestions)
         {
             dynamic response = new JObject();
@@ -57,11 +84,7 @@ namespace Questions.Utility
             Dictionary<string, JContainer> dict = new Dictionary<string, JContainer>();
 
             listOfQuestions
-                //.OrderBy(s=>s.Ref)
                 .OrderByHierarchy()
-                //.Select(s=> new { Q = s, SortField = GetSortField(s)})
-                //.OrderBy(s=>s.SortField)
-                //.Select(s=>s.Q)
                 .ToList()
                 .ForEach(s =>
             {
@@ -92,28 +115,38 @@ namespace Questions.Utility
                     }
                     else
                     {
-                        IEnumerable<string> keys = GetPossibleKeys(splits);
+                        IEnumerable<string> keys = GetPossibleKeys(s.APIRequestField);
 
                         foreach (string key in keys)
                         {
-                            if (dict.ContainsKey(key) == false)
+                            if (dict.ContainsKey(key.TrimEnd('[',']')) == false)
                             {
-                                dict.Add(key, new JObject());
-                                if (DoesKeyExist(parent, key.Split('.').Last()) == false)
+                                if (key.EndsWith("[]"))
                                 {
-                                    parent.Add(key.Split('.').Last(), dict[key]);
+                                    dict.Add(key.TrimEnd('[', ']'), new JArray());
+                                }
+                                else
+                                {
+                                    dict.Add(key, new JObject());
+                                }
+                                if (DoesKeyExist(parent, key.Split('.').Last().TrimEnd('[', ']')) == false)
+                                {
+                                    parent.Add(key.Split('.').Last().TrimEnd('[',']'), dict[key.TrimEnd('[', ']')]);
                                 }
                             }
-                            parent = dict[key];
+                            parent = dict[key.TrimEnd('[', ']')];
                         }
 
-                        if (dict[keys.Last()] is JObject && DoesKeyExist(dict[keys.Last()] as JObject, s.APIRequestField.Split('.').Last()) == false)
-                            (dict[keys.Last()] as JObject).Add(s.APIRequestField.Split('.').Last(), s.UserResponse);
-                        if (dict[keys.Last()] is JArray)
+                        if (!keys.Last().EndsWith("[]"))
                         {
-                            string propName = s.APIRequestField.Split('.').Last();
-                            JObject jobject = GetExistingOrNewJObject(dict[keys.Last()] as JArray, propName);
-                            jobject.Add(propName, s.UserResponse);
+                            if (dict[keys.Last()] is JObject && DoesKeyExist(dict[keys.Last()] as JObject, s.APIRequestField.Split('.').Last()) == false)
+                                (dict[keys.Last()] as JObject).Add(s.APIRequestField.Split('.').Last(), s.UserResponse);
+                            if (dict[keys.Last()] is JArray)
+                            {
+                                string propName = s.APIRequestField.Split('.').Last();
+                                JObject jobject = GetExistingOrNewJObject(dict[keys.Last()] as JArray, propName);
+                                jobject.Add(propName, s.UserResponse);
+                            }
                         }
                     }
                 }
@@ -144,6 +177,14 @@ namespace Questions.Utility
                 return jo;
             }
             return jo;
+        }
+
+        private static bool DoesKeyExist(JArray array, string key)
+        {
+            JObject jo = array.Children<JObject>()
+                //.FirstOrDefault(o => o["text"] != null && o["text"].ToString() == "Two");
+                .FirstOrDefault(o => o[key] == null);
+            return jo != null;
         }
 
         private static bool DoesKeyExist(JObject jobject, string key)
@@ -179,13 +220,15 @@ namespace Questions.Utility
          * 
          * 
          */
-        private static IEnumerable<string> GetPossibleKeys(IEnumerable<string> aPIRequestField)
+        private static IEnumerable<string> GetPossibleKeys(string aPIRequestField)
         {
-            int count = aPIRequestField.Count();
-            var list = aPIRequestField.ToList();
+            IEnumerable<string> keys = aPIRequestField.Split('.');
+            int count = aPIRequestField.EndsWith("[]")? keys.Count() : keys.Count() - 1;
+            var list = keys.ToList();
             List<string> listReturn = new List<string>();
             //list.Add(aPIRequestField.First());
-            for (int i = 0; i < count - 1; i++)
+
+            for (int i = 0; i < count /*- 1*/; i++)
             {
                 string key = string.Empty;
                 for (int j = 0; j <= i; j++)
