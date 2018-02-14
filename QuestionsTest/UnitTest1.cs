@@ -216,11 +216,14 @@ namespace QuestionsTest
             //var expressions = Reader.GetExpressionsForrPresentation(questions, line);
             //Console.WriteLine(expressions);
             //Assert.IsTrue(expressions.Evaluate());
-            var result = Questions.Utility.Extension.QuestionNode.GetOrderedQuestionTree(questions);
-            foreach (var res in result)
-                Console.WriteLine(res.APIRequestField);
+            //var result = Questions.Utility.Extension.QuestionNode.GetOrderedQuestionTree(questions);
+            //foreach (var res in result)
+            //    Console.WriteLine(res.APIRequestField);
 
-            var json = Questions.Utility.Questions.GetResponseJSON(questions);
+            //var json = Questions.Utility.Questions.GetResponseJSON(questions);
+            //Console.WriteLine(json);
+
+            var json = Questions.Utility.Extension.QuestionNode.GetJSON(questions);
             Console.WriteLine(json);
             //Assert.IsTrue(json == )
         }

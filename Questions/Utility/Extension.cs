@@ -92,23 +92,45 @@ namespace Questions.Utility
 
         public class QuestionNode
         {
+            public bool IsDummy { get; set; }
             public Question Question { get; set; }
             private List<QuestionNode> Children { get; }
             private List<List<QuestionNode>> ArrayOfChildren { get; }
             public QuestionNode Parent { get; set; }
+            public string NodeName { get; set; }
+            public string NameSpace { get; set; }
+            public string ParentNameSpace {  get
+                {
+                    if (string.IsNullOrEmpty(NameSpace) || NameSpace.Split('.').Count() == 1)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        return NameSpace.Split('.').Take(NameSpace.Split('.').Count() - 1).Aggregate((a, b) => $"{a}.{b}");
+                    }
+                } }
+            public QuestionNode()
+            {
+                IsDummy = true;
+                ArrayOfChildren = new List<List<QuestionNode>>();
+                Children = new List<QuestionNode>();
+            }
 
             public QuestionNode(Question question)
             {
-                if (question.APIRequestField.EndsWith("[]"))
+                IsDummy = false;
+                //if (question.APIRequestField.EndsWith("[]"))
                 {
                     ArrayOfChildren = new List<List<QuestionNode>>();
                 }
-                else
+                //else
                 {
                     Children = new List<QuestionNode>();
                 }
                 
                 Question = question;
+                NodeName = question.APIRequestField.Split('.').Last().TrimEnd('[', ']');
             }
 
             public void AddChild(QuestionNode node)
@@ -186,13 +208,206 @@ namespace Questions.Utility
                 contents2.jewelleryAndWatches
                 contents2.jewelleryAndWatches.valuableItems.type
 
+                */
 
-            */
+
+            public static string GetJSON(IEnumerable<Question> questions)
+            {
+                //INCOMPLETE
+                var tree = GetQuestionTree(questions);
+                dynamic response = new JObject();
+                //Iterate the top level list of QuestionNodes
+                foreach (QuestionNode node in tree)
+                {
+                    // First make sure we have the right JObject to add the question node to
+                    //If the node's APIRequestID has a hierarchy, we have to make sure all the parent nodes exist as JProperty
+                    Process(response as JObject, node);   
+                }
+
+                return response.ToString();
+            }
+
+            private static void Process(JObject response, QuestionNode node)
+            {
+                var parent = EnsureAllParentNodesExist(response, node);
+                if (!node.IsDummy) Add(parent, node);
+                foreach(var child in node.Children)
+                {
+                    Process(response, child);
+                }
+                foreach(var child in node.ArrayOfChildren)
+                {
+                    child.ForEach(s => Process(response, s));
+                }
+            }
+            private static JContainer EnsureAllParentNodesExist(JObject response, QuestionNode node)
+            {
+                //var splits = node.Question.APIRequestField.Split('.');
+                //var nodeNames = splits.Take(splits.Count() - 1);
+                IEnumerable<string> nodeNames = null;
+                if (node.IsDummy)
+                {
+                    nodeNames = node.NameSpace.Split('.');
+                }
+                else
+                {
+                    var splits = node.Question.APIRequestField.Split('.');
+                    nodeNames = splits.Take(splits.Count() - 1);
+                }
+                if (nodeNames.Count() < 2) return response;
+                JContainer container = response;
+                foreach(var nodeName in nodeNames)
+                {
+                    JContainer childContainer = GetExistingChildContainerByName(container, nodeName.TrimEnd('[', ']'));
+                    if (childContainer == null)
+                    {
+                        if (nodeName.EndsWith("[]"))
+                        {
+                            var newContainer = new JArray();
+                            if (container is JObject)
+                                (container as JObject).Add(nodeName.TrimEnd('[', ']'), newContainer);
+                            else if (container is JArray)
+                                (container as JArray).Add(newContainer);
+                            container = newContainer;
+                        }
+                        else
+                        {
+                            var newContainer = new JObject();
+
+                            if (container is JObject)
+                                (container as JObject).Add(nodeName.TrimEnd('[', ']'), newContainer);
+                            else if (container is JArray)
+                                (container as JArray).Add(newContainer);
+                            container = newContainer;
+                        }
+                    }
+                    else{
+                        container = childContainer;
+                    }
+                }
+                return container;
+            }
+
+            private static void Add(JContainer container, QuestionNode node)
+            {
+                bool hasChildren = false;
+                if (node.Children != null && node.Children.Count() > 0)
+                {
+                    hasChildren = true;
+                    AddToContainer(container, node);
+                }
+                if (node.ArrayOfChildren != null && node.ArrayOfChildren.SelectMany(s=>s).FirstOrDefault() != null)
+                {
+                    hasChildren = true;
+                    //AddToJArray(response, node);
+                }
+                if (hasChildren ==false)
+                {
+                    if (container is JObject)
+                    {
+                        (container as JObject).Add(node.NodeName, node.Question.UserResponse);
+                    }
+                }
+            }
+
+            private static void AddToContainer(JContainer container, QuestionNode node)
+            {
+                if (container is JObject)
+                {
+                    //Does a JObject named node.NodeName exist in response?
+                    var childJObject = GetChildJObjectByName(container as JObject, node.NodeName);
+                    if (childJObject == null)
+                    {
+                        childJObject = new JObject();
+                        (container as JObject).Add(node.NodeName, childJObject);
+                    }
+                    foreach (var childNode in node.Children)
+                    {
+                        Add(childJObject, childNode);
+                    }
+                }
+            }
+
+            public static IEnumerable<Question> GetOrderedQuestionTree(IEnumerable<Question> questions)
+            {
+                var tree = GetQuestionTree(questions);
+                List<Question> list = new List<Question>();
+                tree.ToList().ForEach(s =>
+                {
+                    RecursivelyAdd(list, s);
+                });
+
+                return list;
+            }
+            
             /// </summary>
             /// <param name="fields"></param>
             /// <returns></returns>
-            public static IEnumerable<Question> GetOrderedQuestionTree(IEnumerable<Question> questions)
+            public static IEnumerable<QuestionNode> GetQuestionTree(IEnumerable<Question> questions)
             {
+                var temp = questions.Select(s =>
+                {
+                    var splits = s.APIRequestField.Split('.');
+                    var groupName = s.APIRequestField.TrimEnd('[', ']');
+                    bool isArrayHeader = false;
+                    if (splits.Count() > 1)
+                    {
+                        if (!s.APIRequestField.EndsWith("[]"))
+                        {
+                            groupName = splits.Take(splits.Count() - 1).Aggregate((a, b) => $"{a}.{b}");
+                            isArrayHeader = false;
+                        }
+                        else
+                        {
+                            isArrayHeader = true;
+                        }
+                    }
+                    return new { Q = s, GroupName = groupName, IsArrayHeader = isArrayHeader };
+                })
+                .GroupBy(s => s.GroupName)
+                .Select(t =>
+                {
+                    bool isArray = t.FirstOrDefault(f => f.IsArrayHeader) != null;
+                    QuestionNode node = new QuestionNode();
+                    node.NodeName = t.Key.Split('.').Last();
+                    if (isArray) node = new QuestionNode(t.FirstOrDefault(f => f.IsArrayHeader).Q);
+                    node.NameSpace = t.Key;
+                    foreach (var q in t)
+                    {
+                        if (q.IsArrayHeader) continue;
+
+                        if (isArray)
+                        {
+                            node.AddToArrayOfChildren(new QuestionNode(q.Q));
+                        }
+                        else
+                        {
+                            node.AddChild(new QuestionNode(q.Q));
+                        }
+
+                    }
+
+                    return node;
+                }).ToList();
+
+                List<QuestionNode> nodesToRemove = new List<QuestionNode>();
+                foreach(var questionNode in temp)
+                {
+                    if (questionNode.ParentNameSpace != null)
+                    {
+                        var parent = temp.FirstOrDefault(s => s.NameSpace == questionNode.ParentNameSpace);
+                        if (parent != null)
+                        {
+                            if (parent.IsDummy) parent.Children.Add(questionNode); else parent.AddToArrayOfChildren(questionNode);
+                            nodesToRemove.Add(questionNode);
+                        }
+                    }
+                }
+                nodesToRemove.ForEach(s => temp.Remove(s));
+
+                return temp;
+                /*
+                //new { Q = s, Group = s.APIRequestField.EndsWith("[]")? s.APIRequestField.Split('.').Take()})
                 Dictionary<string, QuestionNode> dict = new Dictionary<string, QuestionNode>();
                 foreach (var question in questions)
                 {
@@ -226,7 +441,8 @@ namespace Questions.Utility
 
                 keysAddedtoTree.ForEach(s => dict.Remove(s));
                 var tree = dict.Values.Select(s => s);
-
+                return tree;
+                */
                 /*
                 dynamic response = new JObject();
                 //response.ProductName = "Elbow Grease";
@@ -265,13 +481,7 @@ namespace Questions.Utility
                 */
 
                 //Now walk the tree and flatten it.
-                List<Question> list = new List<Question>();
-                tree.ToList().ForEach(s =>
-                {
-                    RecursivelyAdd(list, s);
-                });
-
-                return list;
+                
             }
 
             private static JObject GetExistingOrNewJObject(JArray array, string name)
@@ -288,22 +498,36 @@ namespace Questions.Utility
                 return jo;
             }
 
-            
-
-            private static bool DoesKeyExist(JObject jobject, string key)
+            private static JObject GetChildJObjectByName(JObject jobject, string name)
             {
-                bool exists = false;
+                var jproperty = jobject.Descendants()
+                                .Where(t => t.Type == JTokenType.Property)
+                                .FirstOrDefault(s => ((JProperty)s).Name == name);
+                if (jproperty != null)
+                    return ((JProperty)jproperty).Value as JObject;// jproperty.Value<JObject>(name);
+                else
+                    return null;
+            }
 
-                exists = jobject.Descendants()
-                                .Where(t => t.Type == JTokenType.Property /*&& ((JProperty)t).Name == "id"*/)
-                                .Select(p => ((JProperty)p).Name)
-                                .FirstOrDefault(s => s == key) != null;
-
-                //if (templateIdList.IndexOf(key) != -1)
-                //{
-                //    exists = true;
-                //}
-                return exists;
+            private static JContainer GetExistingChildContainerByName(JContainer container, string key)
+            {
+                if (container is JObject)
+                {
+                    //exists = (container as JObject).Descendants()
+                    //            .Where(t => t.Type == JTokenType.Property /*&& ((JProperty)t).Name == "id"*/)
+                    //            .Select(p => ((JProperty)p).Name)
+                    //            .FirstOrDefault(s => s == key) != null;
+                    return GetChildJObjectByName(container as JObject, key);
+                }
+                else if (container is JArray)
+                {
+                    JObject jo = (container as JArray).Children<JObject>()
+                    //.FirstOrDefault(o => o["text"] != null && o["text"].ToString() == "Two");
+                    .FirstOrDefault(o => o[key] == null);
+                    //exists = jo != null;
+                    return jo;
+                }
+                return null;
             }
 
             private static void RecursivelyAdd(List<Question> list, QuestionNode node)
