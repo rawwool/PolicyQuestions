@@ -199,6 +199,10 @@ namespace QuestionsTest
             questions.Add(new Question() { Ref = "1A019e", UserResponse = "diamond", APIRequestField = "contents.jewelleryAndWatches.valuableItems.desc" });
             questions.Add(new Question() { Ref = "1A019f", UserResponse = "21", APIRequestField = "contents.jewelleryAndWatches.valuableItems.yearsOwned" });
             questions.Add(new Question() { Ref = "1A019g", UserResponse = "20000", APIRequestField = "contents.jewelleryAndWatches.valuableItems.value" });
+            questions.Add(new Question() { Ref = "1A019d1", UserResponse = "Jewels", APIRequestField = "contents.jewelleryAndWatches.valuableItems.type" });
+            questions.Add(new Question() { Ref = "1A019e1", UserResponse = "diamond", APIRequestField = "contents.jewelleryAndWatches.valuableItems.desc" });
+            questions.Add(new Question() { Ref = "1A019f1", UserResponse = "21", APIRequestField = "contents.jewelleryAndWatches.valuableItems.yearsOwned" });
+            questions.Add(new Question() { Ref = "1A019g1", UserResponse = "20000", APIRequestField = "contents.jewelleryAndWatches.valuableItems.value" });
             questions.Add(new Question() { Ref = "1A019h", UserResponse = "1", APIRequestField = "previousClaims.Count" });
             questions.Add(new Question() { Ref = "1A019h", UserResponse = "24500", APIRequestField = "previousClaims.Value" });
             questions.Add(new Question() { Ref = "1A019i", UserResponse = "Invisible", APIRequestField = "contents.artAndCollections[]" });
@@ -208,6 +212,9 @@ namespace QuestionsTest
             questions.Add(new Question() { Ref = "1A019m", UserResponse = "Picaso", APIRequestField = "contents.artAndCollections.valuableItems.desc" });
             questions.Add(new Question() { Ref = "1A019n", UserResponse = "240500", APIRequestField = "contents.artAndCollections.valuableItems.value" });
             questions.Add(new Question() { Ref = "1A019o", UserResponse = "2015", APIRequestField = "contents.artAndCollections.valuableItems.valuationYear" });
+            questions.Add(new Question() { Ref = "1A019m1", UserResponse = "Picaso", APIRequestField = "contents.artAndCollections.valuableItems.desc" });
+            questions.Add(new Question() { Ref = "1A019n1", UserResponse = "240500", APIRequestField = "contents.artAndCollections.valuableItems.value" });
+            questions.Add(new Question() { Ref = "1A019o1", UserResponse = "2015", APIRequestField = "contents.artAndCollections.valuableItems.valuationYear" });
             questions.Add(new Question() { Ref = "1A019p", UserResponse = "Invisible", APIRequestField = "contents.otherValuableItems[]" });
             questions.Add(new Question() { Ref = "1A019q", UserResponse = "Tesla", APIRequestField = "contents.otherValuableItems.desc" });
             questions.Add(new Question() { Ref = "1A019r", UserResponse = "84500", APIRequestField = "contents.otherValuableItems.value" });
@@ -220,6 +227,60 @@ namespace QuestionsTest
             //foreach (var res in result)
             //    Console.WriteLine(res.APIRequestField);
 
+            //var json = Questions.Utility.Questions.GetResponseJSON(questions);
+            //Console.WriteLine(json);
+
+            var json = Questions.Utility.Extension.QuestionNode.GetJSON(questions);
+            Console.WriteLine(json);
+            //Assert.IsTrue(json == )
+        }
+
+
+        [TestMethod]
+        public void TestMethod10()
+        {
+            List<Question> questions = new List<Question>();
+            questions.Add(new Question() { Ref = "1A019", UserResponse = "100000", APIRequestField = "contents.jewelleryAndWatches.value" });
+            questions.Add(new Question() { Ref = "1A019a", UserResponse = "Invisible", APIRequestField = "contents.jewelleryAndWatches.valuableItems[]" });
+            questions.Add(new Question() { Ref = "1A019b", UserResponse = "Yes", APIRequestField = "contents.jewelleryAndWatches.hasSafe" });
+            questions.Add(new Question() { Ref = "1A019c", UserResponse = "Invisible", APIRequestField = "contents.jewelleryAndWatches.Have" });
+            questions.Add(new Question() { Ref = "1A019d", UserResponse = "Jewels", APIRequestField = "contents.jewelleryAndWatches.valuableItems.type" });
+            questions.Add(new Question() { Ref = "1A019e", UserResponse = "diamond", APIRequestField = "contents.jewelleryAndWatches.valuableItems.desc" });
+            questions.Add(new Question() { Ref = "1A019f", UserResponse = "21", APIRequestField = "contents.jewelleryAndWatches.valuableItems.yearsOwned" });
+            questions.Add(new Question() { Ref = "1A019g", UserResponse = "20000", APIRequestField = "contents.jewelleryAndWatches.valuableItems.value" });
+            questions.Add(new Question() { Ref = "1A019d1", UserResponse = "Jewels", APIRequestField = "contents.jewelleryAndWatches.valuableItems.type" });
+            questions.Add(new Question() { Ref = "1A019e1", UserResponse = "diamond", APIRequestField = "contents.jewelleryAndWatches.valuableItems.desc" });
+            questions.Add(new Question() { Ref = "1A019f1", UserResponse = "21", APIRequestField = "contents.jewelleryAndWatches.valuableItems.yearsOwned" });
+            questions.Add(new Question() { Ref = "1A019g1", UserResponse = "20000", APIRequestField = "contents.jewelleryAndWatches.valuableItems.value" });
+            questions.Add(new Question() { Ref = "1A019h", UserResponse = "1", APIRequestField = "previousClaims.Count" });
+            questions.Add(new Question() { Ref = "1A019h", UserResponse = "24500", APIRequestField = "previousClaims.Value" });
+            questions.Add(new Question() { Ref = "1A019i", UserResponse = "Invisible", APIRequestField = "contents.artAndCollections[]" });
+            questions.Add(new Question() { Ref = "1A019j", UserResponse = "Paintings", APIRequestField = "contents.artAndCollections.category" });
+            questions.Add(new Question() { Ref = "1A019k", UserResponse = "29500", APIRequestField = "contents.artAndCollections.value" });
+            questions.Add(new Question() { Ref = "1A019l", UserResponse = "Invisible", APIRequestField = "contents.artAndCollections.valuableItems[]" });
+           // questions.Add(new Question() { Ref = "1A019m", UserResponse = "Invisible", APIRequestField = "contents.artAndCollections.valuableItems.desc[]" });
+            questions.Add(new Question() { Ref = "1A019m1", UserResponse = "Picaso", APIRequestField = "contents.artAndCollections.valuableItems.desc2.Artiste" });
+            questions.Add(new Question() { Ref = "1A019m2", UserResponse = "1960", APIRequestField = "contents.artAndCollections.valuableItems.desc2.Year" });
+            questions.Add(new Question() { Ref = "1A019n", UserResponse = "240500", APIRequestField = "contents.artAndCollections.valuableItems.value" });
+            questions.Add(new Question() { Ref = "1A019o", UserResponse = "2015", APIRequestField = "contents.artAndCollections.valuableItems.valuationYear" });
+            questions.Add(new Question() { Ref = "1A019m1", UserResponse = "Picaso2", APIRequestField = "contents.artAndCollections.valuableItems.desc" });
+            questions.Add(new Question() { Ref = "1A019n1", UserResponse = "240500", APIRequestField = "contents.artAndCollections.valuableItems.value" });
+            questions.Add(new Question() { Ref = "1A019o1", UserResponse = "2015", APIRequestField = "contents.artAndCollections.valuableItems.valuationYear" });
+            questions.Add(new Question() { Ref = "1A019p", UserResponse = "Invisible", APIRequestField = "contents.otherValuableItems[]" });
+            questions.Add(new Question() { Ref = "1A019q", UserResponse = "Tesla", APIRequestField = "contents.otherValuableItems.desc" });
+            questions.Add(new Question() { Ref = "1A019r", UserResponse = "84500", APIRequestField = "contents.otherValuableItems.value" });
+            questions.Add(new Question() { Ref = "1A019s", UserResponse = "624500", APIRequestField = "contents.totalValue" });
+            //string line = "Mandatory if response to question 1A001 is \"Contents only\" or 1A001 is \"Buildings & Contents\"";
+            //var expressions = Reader.GetExpressionsForrPresentation(questions, line);
+            //Console.WriteLine(expressions);
+            //Assert.IsTrue(expressions.Evaluate());
+            var result = Questions.Utility.Extension.QuestionNode.GetOrderedQuestionTree(questions);
+            foreach (var res in result)
+                Console.WriteLine(res.APIRequestField);
+
+            var test = Questions.Utility.Extension.QuestionNode.GetTokenTree(questions);
+
+            Console.WriteLine(Questions.Utility.Extension.QuestionNode.GetJSON2(questions));
             //var json = Questions.Utility.Questions.GetResponseJSON(questions);
             //Console.WriteLine(json);
 
