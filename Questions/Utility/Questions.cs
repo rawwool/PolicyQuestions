@@ -37,7 +37,7 @@ namespace Questions.Utility
             return questions
                 .GroupBy(s => s.APIResource)
                 .OrderBy(s => s.Key)
-                .Select(s => new { Resource = s.Key, JSON = GetResponseJSON(s) })
+                .Select(s => new { Resource = s.Key, JSON = s.AsJSON() /*GetResponseJSON(s)*/ })
                 .Select(s => new APIRequest() { RelativeURL = s.Resource, JSONBody = s.JSON });
                 //.Select(s => $"{s.Resource}{Environment.NewLine}{s.JSON}")
                 //.Aggregate((a, b) => $"{a}{Environment.NewLine}{Environment.NewLine}{b}");                
@@ -70,6 +70,7 @@ namespace Questions.Utility
             return null;
         }
 
+        [Obsolete]
         public static string GetResponseJSON(IEnumerable<Question> listOfQuestions)
         {
             dynamic response = new JObject();

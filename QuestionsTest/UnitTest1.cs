@@ -240,6 +240,7 @@ namespace QuestionsTest
         public void TestMethod10()
         {
             List<Question> questions = new List<Question>();
+            
             questions.Add(new Question() { Ref = "1A019", UserResponse = "100000", APIRequestField = "contents.jewelleryAndWatches.value" });
             questions.Add(new Question() { Ref = "1A019a", UserResponse = "Invisible", APIRequestField = "contents.jewelleryAndWatches.valuableItems[]" });
             questions.Add(new Question() { Ref = "1A019b", UserResponse = "Yes", APIRequestField = "contents.jewelleryAndWatches.hasSafe" });
@@ -258,7 +259,7 @@ namespace QuestionsTest
             questions.Add(new Question() { Ref = "1A019j", UserResponse = "Paintings", APIRequestField = "contents.artAndCollections.category" });
             questions.Add(new Question() { Ref = "1A019k", UserResponse = "29500", APIRequestField = "contents.artAndCollections.value" });
             questions.Add(new Question() { Ref = "1A019l", UserResponse = "Invisible", APIRequestField = "contents.artAndCollections.valuableItems[]" });
-           // questions.Add(new Question() { Ref = "1A019m", UserResponse = "Invisible", APIRequestField = "contents.artAndCollections.valuableItems.desc[]" });
+            questions.Add(new Question() { Ref = "1A019m", UserResponse = "Invisible", APIRequestField = "contents.artAndCollections.valuableItems.desc2[]" });
             questions.Add(new Question() { Ref = "1A019m1", UserResponse = "Picaso", APIRequestField = "contents.artAndCollections.valuableItems.desc2.Artiste" });
             questions.Add(new Question() { Ref = "1A019m2", UserResponse = "1960", APIRequestField = "contents.artAndCollections.valuableItems.desc2.Year" });
             questions.Add(new Question() { Ref = "1A019n", UserResponse = "240500", APIRequestField = "contents.artAndCollections.valuableItems.value" });
@@ -270,6 +271,10 @@ namespace QuestionsTest
             questions.Add(new Question() { Ref = "1A019q", UserResponse = "Tesla", APIRequestField = "contents.otherValuableItems.desc" });
             questions.Add(new Question() { Ref = "1A019r", UserResponse = "84500", APIRequestField = "contents.otherValuableItems.value" });
             questions.Add(new Question() { Ref = "1A019s", UserResponse = "624500", APIRequestField = "contents.totalValue" });
+            
+
+            questions.Add(new Question() { Ref = "1A019s", UserResponse = "Aayush", APIRequestField = "Name" });
+            questions.Add(new Question() { Ref = "1A019s", UserResponse = "12", APIRequestField = "Age" });
             //string line = "Mandatory if response to question 1A001 is \"Contents only\" or 1A001 is \"Buildings & Contents\"";
             //var expressions = Reader.GetExpressionsForrPresentation(questions, line);
             //Console.WriteLine(expressions);

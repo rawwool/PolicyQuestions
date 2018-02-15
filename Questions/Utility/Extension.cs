@@ -89,6 +89,10 @@ namespace Questions.Utility
             return QuestionNode.GetOrderedQuestionTree(questions);
         }
 
+        public static string AsJSON(this IEnumerable<Question> questions)
+        {
+            return QuestionNode.GetJSON2(questions);
+        }
 
         public class QuestionNode
         {
@@ -213,6 +217,7 @@ namespace Questions.Utility
                 */
 
 
+            [Obsolete]
             public static string GetJSON(IEnumerable<Question> questions)
             {
                 //INCOMPLETE
@@ -411,7 +416,17 @@ namespace Questions.Utility
                         if (Children.Count() > 0)
                         {
                             JObject jobject = new JObject();
-                            Children.ForEach(s => jobject.Add(s.Token));
+                            Children.ForEach(s =>
+                            {
+                                var jproperty = jobject.Descendants()
+                                       .Where(p => p.Type == JTokenType.Property)
+                                       .FirstOrDefault(q => ((JProperty)q).Name == s.Name);
+                                if (jproperty == null)
+                                {
+                                    jobject.Add(s.Token);
+                                }
+                                //jobject.Add(s.Token);
+                            });
                             value = jobject;
                         }
                         if (ArrayOfChildren.Count() > 0)
@@ -457,7 +472,30 @@ namespace Questions.Utility
                 //product.StockCount = 9000;
                 //product.StockValue = 44100;
                 //product.Tags = new JArray("Real", "OnSale");
-                tree.ToList().ForEach(s => response.Add(s.Token));
+
+                tree
+                    .Where(s => s.Name.Length == 0)
+                    .SelectMany(s=>s.Children)
+                    .GroupBy(s=>s.Name)
+                    .Select(s=>s.First())
+                    .ToList()
+                    .ForEach(s => response.Add(s.Token));
+
+                tree.ToList().ForEach(s =>
+                {
+                    if (s.Name.Length > 0)
+                        try
+                        {
+                            var jproperty = (response as JObject).Descendants()
+                                .Where(t => t.Type == JTokenType.Property)
+                                .FirstOrDefault(y => ((JProperty)y).Name == s.Name);
+                            if (jproperty == null)
+                                (response as JObject).Add(s.Token);
+                            else
+                                jproperty.Replace(s.Token);
+                        }
+                        catch { }
+                });
                 return response.ToString();
             }
 
@@ -532,6 +570,10 @@ namespace Questions.Utility
                         {
                             isArrayHeader = true;
                         }
+                    }
+                    else
+                    {
+                        groupName = "";
                     }
                     return new { Q = s, GroupName = groupName, IsArrayHeader = isArrayHeader };
                 })
