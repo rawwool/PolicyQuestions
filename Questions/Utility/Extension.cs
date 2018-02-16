@@ -10,6 +10,37 @@ using System.Threading.Tasks;
 
 namespace Questions.Utility
 {
+    public static class JsonExtensions
+    {
+        public static List<JToken> FindTokens(this JToken containerToken, string name)
+        {
+            List<JToken> matches = new List<JToken>();
+            FindTokens(containerToken, name, matches);
+            return matches;
+        }
+
+        private static void FindTokens(JToken containerToken, string name, List<JToken> matches)
+        {
+            if (containerToken.Type == JTokenType.Object)
+            {
+                foreach (JProperty child in containerToken.Children<JProperty>())
+                {
+                    if (child.Name == name)
+                    {
+                        matches.Add(child.Value);
+                    }
+                    FindTokens(child.Value, name, matches);
+                }
+            }
+            else if (containerToken.Type == JTokenType.Array)
+            {
+                foreach (JToken child in containerToken.Children())
+                {
+                    FindTokens(child, name, matches);
+                }
+            }
+        }
+    }
     public static class Extension
     {
         /// <summary>
@@ -473,19 +504,44 @@ namespace Questions.Utility
                 //product.StockValue = 44100;
                 //product.Tags = new JArray("Real", "OnSale");
 
+                /*
                 tree
                     .Where(s => s.Name.Length == 0)
                     .SelectMany(s=>s.Children)
                     .GroupBy(s=>s.Name)
                     .Select(s=>s.First())
                     .ToList()
-                    .ForEach(s => response.Add(s.Token));
+                    .ForEach(s => response.Add(s.Token));*/
 
                 tree.ToList().ForEach(s =>
                 {
-                    if (s.Name.Length > 0)
-                        try
+                    //if (s.Name.Length > 0)
+                    try
+                    {
+                        if (string.IsNullOrEmpty(s.Name))
                         {
+                            s.Token.Value.ToList().ForEach(r=>
+                            (response as JObject).Add(r));
+                        }
+                        else
+                        {
+                            var tokens = (response as JObject).FindTokens(s.Name);
+                            if (tokens.Count() == 0)
+                            {
+                                (response as JObject).Add(s.Token);
+                            }
+                            else
+                            {
+                                //Find a unique name
+                                string newName = s.Name;
+
+                                do { newName += "_DUP"; }
+                                while ((response as JObject).FindTokens(newName).Count() > 0);
+
+                                (response as JObject).Add(newName, s.Token.Value);
+                            }
+
+                            /*
                             var jproperty = (response as JObject).Descendants()
                                 .Where(t => t.Type == JTokenType.Property)
                                 .FirstOrDefault(y => ((JProperty)y).Name == s.Name);
@@ -493,8 +549,10 @@ namespace Questions.Utility
                                 (response as JObject).Add(s.Token);
                             else
                                 jproperty.Replace(s.Token);
+                            */
                         }
-                        catch { }
+                    }
+                    catch { }
                 });
                 return response.ToString();
             }
@@ -554,30 +612,26 @@ namespace Questions.Utility
             /// <returns></returns>
             public static IEnumerable<QuestionNode> GetQuestionTree(IEnumerable<Question> questions)
             {
-                var temp = questions.Select(s =>
+                var temp1 = questions.ToList().Select(s =>
                 {
                     var splits = s.APIRequestField.Split('.');
-                    var groupName = s.APIRequestField.TrimEnd('[', ']');
-                    bool isArrayHeader = false;
-                    if (splits.Count() > 1)
+                    string groupName = string.Empty;
+                    bool isArrayHeader = s.APIRequestField.EndsWith("[]");
+                    if (s.APIRequestField.EndsWith("[]"))
                     {
-                        if (!s.APIRequestField.EndsWith("[]"))
-                        {
-                            groupName = splits.Take(splits.Count() - 1).Aggregate((a, b) => $"{a}.{b}");
-                            isArrayHeader = false;
-                        }
-                        else
-                        {
-                            isArrayHeader = true;
-                        }
+                        groupName = s.APIRequestField.TrimEnd('[', ']');
                     }
                     else
                     {
-                        groupName = "";
+                        if (splits.Count() > 1)
+                        {
+                            groupName = splits.Take(splits.Count() - 1).Aggregate((a, b) => $"{a}.{b}");
+                        }
                     }
+                   
                     return new { Q = s, GroupName = groupName, IsArrayHeader = isArrayHeader };
-                })
-                .GroupBy(s => s.GroupName)
+                });
+                var temp = temp1.GroupBy(s => s.GroupName)
                 .Select(t =>
                 {
                     bool isArray = t.FirstOrDefault(f => f.IsArrayHeader) != null;

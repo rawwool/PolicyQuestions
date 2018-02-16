@@ -240,7 +240,7 @@ namespace QuestionsTest
         public void TestMethod10()
         {
             List<Question> questions = new List<Question>();
-            
+           
             questions.Add(new Question() { Ref = "1A019", UserResponse = "100000", APIRequestField = "contents.jewelleryAndWatches.value" });
             questions.Add(new Question() { Ref = "1A019a", UserResponse = "Invisible", APIRequestField = "contents.jewelleryAndWatches.valuableItems[]" });
             questions.Add(new Question() { Ref = "1A019b", UserResponse = "Yes", APIRequestField = "contents.jewelleryAndWatches.hasSafe" });
@@ -253,6 +253,7 @@ namespace QuestionsTest
             questions.Add(new Question() { Ref = "1A019e1", UserResponse = "diamond", APIRequestField = "contents.jewelleryAndWatches.valuableItems.desc" });
             questions.Add(new Question() { Ref = "1A019f1", UserResponse = "21", APIRequestField = "contents.jewelleryAndWatches.valuableItems.yearsOwned" });
             questions.Add(new Question() { Ref = "1A019g1", UserResponse = "20000", APIRequestField = "contents.jewelleryAndWatches.valuableItems.value" });
+            questions.Add(new Question() { Ref = "1A019h1", UserResponse = "Invisible", APIRequestField = "previousClaims[]" });
             questions.Add(new Question() { Ref = "1A019h", UserResponse = "1", APIRequestField = "previousClaims.Count" });
             questions.Add(new Question() { Ref = "1A019h", UserResponse = "24500", APIRequestField = "previousClaims.Value" });
             questions.Add(new Question() { Ref = "1A019i", UserResponse = "Invisible", APIRequestField = "contents.artAndCollections[]" });
@@ -267,11 +268,16 @@ namespace QuestionsTest
             questions.Add(new Question() { Ref = "1A019m1", UserResponse = "Picaso2", APIRequestField = "contents.artAndCollections.valuableItems.desc" });
             questions.Add(new Question() { Ref = "1A019n1", UserResponse = "240500", APIRequestField = "contents.artAndCollections.valuableItems.value" });
             questions.Add(new Question() { Ref = "1A019o1", UserResponse = "2015", APIRequestField = "contents.artAndCollections.valuableItems.valuationYear" });
+           
             questions.Add(new Question() { Ref = "1A019p", UserResponse = "Invisible", APIRequestField = "contents.otherValuableItems[]" });
             questions.Add(new Question() { Ref = "1A019q", UserResponse = "Tesla", APIRequestField = "contents.otherValuableItems.desc" });
             questions.Add(new Question() { Ref = "1A019r", UserResponse = "84500", APIRequestField = "contents.otherValuableItems.value" });
             questions.Add(new Question() { Ref = "1A019s", UserResponse = "624500", APIRequestField = "contents.totalValue" });
-            
+            questions.Add(new Question() { Ref = "1A019p", UserResponse = "Invisible", APIRequestField = "otherValuableItems[]" });
+            questions.Add(new Question() { Ref = "1A019q", UserResponse = "Tesla", APIRequestField = "otherValuableItems.desc" });
+            questions.Add(new Question() { Ref = "1A019r", UserResponse = "84500", APIRequestField = "otherValuableItems.value" });
+            //questions.Add(new Question() { Ref = "1A019s", UserResponse = "624500", APIRequestField = "contents.totalValue" });
+
 
             questions.Add(new Question() { Ref = "1A019s", UserResponse = "Aayush", APIRequestField = "Name" });
             questions.Add(new Question() { Ref = "1A019s", UserResponse = "12", APIRequestField = "Age" });
@@ -289,8 +295,8 @@ namespace QuestionsTest
             //var json = Questions.Utility.Questions.GetResponseJSON(questions);
             //Console.WriteLine(json);
 
-            var json = Questions.Utility.Extension.QuestionNode.GetJSON(questions);
-            Console.WriteLine(json);
+            //var json = Questions.Utility.Extension.QuestionNode.GetJSON(questions);
+            //Console.WriteLine(json);
             //Assert.IsTrue(json == )
         }
     }
