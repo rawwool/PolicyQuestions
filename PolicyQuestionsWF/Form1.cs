@@ -149,10 +149,7 @@ namespace PolicyQuestionsWF
                });
             questions.ForEach(s =>
             {
-                if (s.ShowHide != null)
-                {
-                    s.ShowHide.Invoke(s.InvokeThisQuestion());
-                }
+                
                 s.Children.ForEach(q =>
                 {
                     if (q.ShowHide != null)
@@ -175,7 +172,10 @@ namespace PolicyQuestionsWF
                         q.ShowHide.Invoke(q.InvokeThisQuestion());
                     }
                 });
-                
+                //if (s.ShowHide != null)
+                //{
+                //    s.ShowHide.Invoke(s.InvokeThisQuestion());
+                //}
             });
 
             /*

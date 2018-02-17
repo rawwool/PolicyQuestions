@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Questions.Model;
+using static Questions.Model.Question;
 
 namespace PolicyQuestionsWF
 {
@@ -42,15 +43,15 @@ namespace PolicyQuestionsWF
             textBox1.Height = h;
         }
 
-        public Action<string> Changed;
+        public Action<ResponseChoice> Changed;
 
-        public void ResponseChanged(string value)
+        public void ResponseChanged(ResponseChoice value)
         {
             if (Changed != null)
             {
                 Changed.Invoke(value);
             }
-            _Question.UserResponse = value.Trim();
+            _Question.UserResponse = value;
             
             _Question.Children.ForEach(s =>
             {
@@ -147,7 +148,7 @@ namespace PolicyQuestionsWF
             ResponsePicker responsePicker = new ResponsePicker();
             responsePicker.Changed = ResponseChanged;
 
-            responsePicker.SetResponseDataCaptureType(question.DataCaptureType, question.ResponseChoices, question.UserResponse);
+            responsePicker.SetResponseDataCaptureType(question.DataCaptureType, question.ResponseChoices, question.UserResponse.Display);
             this.panelResponse.Controls.Add(responsePicker);
             question.Children.ForEach(s =>
             {
@@ -156,7 +157,6 @@ namespace PolicyQuestionsWF
                 this.flowLayoutPanel2.Controls.Add(control);
                 s.ShowHide(s.InvokeThisQuestion());
             });
-            //this.Dock = DockStyle.Fill;
 
             SetHeight();
             this.ResumeLayout();
@@ -165,16 +165,16 @@ namespace PolicyQuestionsWF
 
         public void SetHeight()
         {
-            //int height = flowLayoutPanel1.DisplayRectangle.Height + this.Padding.Bottom + this.Padding.Top + this.Margin.Top + this.Margin.Bottom;
-            // reduce the height of the hidden child questions
-            //foreach (Control control in flowLayoutPanel2.Controls)
-            //{
-            //    if (control is QuestionControl && control.Visible == false)
-            //    {
-            //        height -= control.DisplayRectangle.Height;
-            //    }
-            //}
             int height = this.flowLayoutPanel2.Top;
+            
+            int innerHeight = 0;
+            GetInnerHeight(ref innerHeight);
+            
+            this.Height = height + innerHeight;
+        }
+
+        private void GetInnerHeight(ref int height)
+        {
             int innerHeight = 0;
             foreach (Control control in flowLayoutPanel2.Controls)
             {
@@ -187,7 +187,7 @@ namespace PolicyQuestionsWF
                 }
             }
 
-            this.Height = height + innerHeight;
+            height += innerHeight;
         }
 
         private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)

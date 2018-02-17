@@ -184,7 +184,7 @@ namespace Questions.Utility
                         APIRequestField = GetValue(xlRangeValues, i, apiRequestFieldColumnIndex),
                         APIResource = GetValue(xlRangeValues, i, apiResourceFieldIndex),
                         UIValdationMessage = GetValue(xlRangeValues, i, uiValidationIndex),
-                        ResponseChoices = GetValue(xlRangeValues, i, answersColumnIndex).Split('\n').Where(s => s.Trim().Length > 0).ToList()
+                        ResponseChoices = GetResponseChoice(GetValue(xlRangeValues, i, answersColumnIndex).Split('\n').Where(s => s.Trim().Length > 0).ToList())
                     };
 
                     //ConditionForPresentation >> ParentQuestion, ThisQuestio'sResponse, IsthatPositive, Full Response
@@ -220,6 +220,16 @@ namespace Questions.Utility
                 Marshal.ReleaseComObject(xlRange);
                 Marshal.ReleaseComObject(xlWorksheet);
             }
+        }
+
+        private static List<Question.ResponseChoice> GetResponseChoice(List<string> list)
+        {
+            return list.Select(s =>
+            {
+                var splits = s.Split('=');
+                return new Question.ResponseChoice() { Display = splits.First().Trim(), Value = splits.Last().Trim() };
+            })
+            .ToList();
         }
 
         private static IEnumerable<string> GetColumns(System.Array xlRange, int rownNumber)

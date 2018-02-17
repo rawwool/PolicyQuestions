@@ -85,7 +85,7 @@ namespace Questions.Utility
                     //These are all 'or' so return as soon as one 
                     if (exp.Positive)
                     {
-                        if (Fuzzy.AreSimilar(exp.Question.UserResponse, exp.ValueToCompareWith))
+                        if (Fuzzy.AreSimilar(exp.Question.UserResponse.Display, exp.ValueToCompareWith))
                         {
                             expResult = true;
                             continue;
@@ -94,7 +94,7 @@ namespace Questions.Utility
                     }
                     else
                     {
-                        if (!Fuzzy.AreSimilar(exp.Question.UserResponse, exp.ValueToCompareWith))
+                        if (!Fuzzy.AreSimilar(exp.Question.UserResponse.Display, exp.ValueToCompareWith))
                         {
                             expResult = true;
                             continue;

@@ -25,13 +25,25 @@ namespace Questions.Model
 
         public enumDataCaptureType DataCaptureType { get; set; }
 
-        public List<string> ResponseChoices { get; set; }
+        public class ResponseChoice
+        {
+            public string Display { get; set; }
+            public string Value { get; set; }
+
+            public ResponseChoice() { }
+            public ResponseChoice(string value)
+            {
+                Display = value;
+                Value = value;
+            }
+        }
+        public List<ResponseChoice> ResponseChoices { get; set; }
 
         //public string ParentResponseForInvokingThisChildQuestion { get; set; }
 
         public string DefaultResponse { get; set; }
 
-        public string UserResponse { get; set; }
+        public ResponseChoice UserResponse { get; set; }
         public string HelpText { get; set; }
 
         public string APIRequestField { get; set; }
@@ -57,6 +69,7 @@ namespace Questions.Model
         {
             Children = new List<Question>();
             LogicalChildren = new List<Question>();
+            UserResponse = new ResponseChoice();
         }
 
         public bool InvokeThisQuestion()

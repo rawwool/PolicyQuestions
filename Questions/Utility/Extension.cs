@@ -385,11 +385,11 @@ namespace Questions.Utility
                                 .FirstOrDefault(s => ((JProperty)s).Name == node.NodeName);
                         if (jproperty != null)
                         {
-                            (jproperty as JProperty).Value = node.Question.UserResponse;
+                            (jproperty as JProperty).Value = node.Question.UserResponse.Value;
                         }
                         else
                         {
-                            (container as JObject).Add(node.NodeName, node.Question.UserResponse);
+                            (container as JObject).Add(node.NodeName, node.Question.UserResponse.Value);
                         }
                     }
                     else if (container is JArray)
@@ -402,12 +402,12 @@ namespace Questions.Utility
                         if (jObjectCandidate == null)
                         {
                             jObjectCandidate = new JObject();
-                            (jObjectCandidate as JObject).Add(node.NodeName, node.Question.UserResponse);
+                            (jObjectCandidate as JObject).Add(node.NodeName, node.Question.UserResponse.Value);
                             container.Add(jObjectCandidate);
                         }
                         else if (jObjectCandidate is JObject)
                         {
-                            (jObjectCandidate as JObject).Add(node.NodeName, node.Question.UserResponse);
+                            (jObjectCandidate as JObject).Add(node.NodeName, node.Question.UserResponse.Value);
                         }
                     }
                 }
@@ -577,7 +577,7 @@ namespace Questions.Utility
                     nodes.Add(node);
                     if (treeNode.Question != null)
                     {
-                        node.Value = treeNode.Question.UserResponse;
+                        node.Value = treeNode.Question.UserResponse.Value;
                     }
                     if (treeNode.Children.Count() > 0)
                     {

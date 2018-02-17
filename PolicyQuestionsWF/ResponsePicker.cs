@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Questions.Model;
+using static Questions.Model.Question;
 
 namespace PolicyQuestionsWF
 {
@@ -18,9 +19,9 @@ namespace PolicyQuestionsWF
             InitializeComponent();
         }
 
-        public Action<string> Changed;
+        public Action<ResponseChoice> Changed;
 
-        public void SetResponseDataCaptureType(enumDataCaptureType type, IEnumerable<string> possibleResponses, string userResponse)
+        public void SetResponseDataCaptureType(enumDataCaptureType type, IEnumerable<ResponseChoice> possibleResponses, string userResponse)
         {
             this.AutoSize = true;
             switch(type)
@@ -48,6 +49,7 @@ namespace PolicyQuestionsWF
                     var combo = new ComboBox();
                     combo.DropDownStyle = ComboBoxStyle.DropDownList;
                     combo.DataSource = possibleResponses;
+                    combo.DisplayMember = "Display";
                     if (userResponse != null) combo.SelectedValue = userResponse;
                     combo.SelectedValueChanged += Combo_SelectedValueChanged;
                     if (userResponse == null) combo.SelectedValue = possibleResponses.FirstOrDefault();
@@ -65,7 +67,7 @@ namespace PolicyQuestionsWF
                         RadioButton rb = new RadioButton();
                         rb.AutoSize = true;
                         rb.Margin = new Padding(2);
-                        rb.Text = s;
+                        rb.Text = s.Display;
                         if (userResponse != null && rb.Text == userResponse) rb.Checked = true;
                         rb.CheckedChanged += Rb_CheckedChanged;
                         if (userResponse == null)
@@ -80,7 +82,7 @@ namespace PolicyQuestionsWF
                     break;
                 case enumDataCaptureType.CheckBox:
                     CheckBox checkBoxChoice = new CheckBox();
-                    checkBoxChoice.Text = possibleResponses.FirstOrDefault();
+                    checkBoxChoice.Text = possibleResponses.FirstOrDefault().Display;
                     bool state = false;
 
                     if (userResponse != null)
@@ -115,7 +117,7 @@ namespace PolicyQuestionsWF
         {
             if (Changed != null)
             {
-                Changed.Invoke((sender as CheckBox).Checked ? "true" : "false");
+                Changed.Invoke((sender as CheckBox).Checked ? new ResponseChoice("true") : new ResponseChoice("false"));
             }
         }
 
@@ -123,7 +125,7 @@ namespace PolicyQuestionsWF
         {
             if (Changed != null && (sender as RadioButton).Checked)
             {
-                Changed.Invoke((sender as RadioButton).Text.ToString());
+                Changed.Invoke(new ResponseChoice((sender as RadioButton).Text.ToString()));
             }
         }
 
@@ -131,7 +133,8 @@ namespace PolicyQuestionsWF
         {
             if (Changed != null)
             {
-                Changed.Invoke((sender as ComboBox).SelectedValue.ToString());
+                var choice = (sender as ComboBox).SelectedValue as ResponseChoice;
+                Changed.Invoke(choice);
             }
         }
 
@@ -139,7 +142,7 @@ namespace PolicyQuestionsWF
         {
             if (Changed != null)
             {
-                Changed.Invoke((sender as TextBox).Text);
+                Changed.Invoke(new ResponseChoice((sender as TextBox).Text));
             }
         }
 
@@ -147,7 +150,7 @@ namespace PolicyQuestionsWF
         {
             if (Changed != null)
             {
-                Changed.Invoke((sender as DateTimePicker).Value.ToString("yyyy-MM-dd"));
+                Changed.Invoke(new ResponseChoice((sender as DateTimePicker).Value.ToString("yyyy-MM-dd")));
             }
         }
     }

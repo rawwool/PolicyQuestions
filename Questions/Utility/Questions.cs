@@ -141,12 +141,12 @@ namespace Questions.Utility
                         if (!keys.Last().EndsWith("[]"))
                         {
                             if (dict[keys.Last()] is JObject && DoesKeyExist(dict[keys.Last()] as JObject, s.APIRequestField.Split('.').Last()) == false)
-                                (dict[keys.Last()] as JObject).Add(s.APIRequestField.Split('.').Last(), s.UserResponse);
+                                (dict[keys.Last()] as JObject).Add(s.APIRequestField.Split('.').Last(), s.UserResponse.Value);
                             if (dict[keys.Last()] is JArray)
                             {
                                 string propName = s.APIRequestField.Split('.').Last();
                                 JObject jobject = GetExistingOrNewJObject(dict[keys.Last()] as JArray, propName);
-                                jobject.Add(propName, s.UserResponse);
+                                jobject.Add(propName, s.UserResponse.Value);
                             }
                         }
                     }
