@@ -145,8 +145,9 @@ namespace PolicyQuestionsWF
             //this.labelHelp.Text = question.HelpText;
             this.panelResponse.Controls.Clear();
             ResponsePicker responsePicker = new ResponsePicker();
-            responsePicker.SetResponseDataCaptureType(question.DataCaptureType, question.ResponseChoices, question.UserResponse);
             responsePicker.Changed = ResponseChanged;
+
+            responsePicker.SetResponseDataCaptureType(question.DataCaptureType, question.ResponseChoices, question.UserResponse);
             this.panelResponse.Controls.Add(responsePicker);
             question.Children.ForEach(s =>
             {

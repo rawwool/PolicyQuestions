@@ -36,6 +36,7 @@ namespace Questions.Model
 
         public string APIRequestField { get; set; }
 
+        public string UIValdationMessage { get; set; }
         public string APIResource { get; set; }
         public string InternalInfo
         {
@@ -71,7 +72,7 @@ namespace Questions.Model
             {
                 childrenRef = children.Aggregate((a, b) => a + ", " + b);
             }
-            return $"{Ref} {Text}\n{HelpText}\n{APIResource}\n{APIRequestField}\nLogical Children: {childrenRef}";
+            return $"{Ref} {Text}\n{HelpText}\n{APIResource}\n{APIRequestField}\nLogical Children: {childrenRef}\nUI Validation: {UIValdationMessage}";
         }
     }
 }

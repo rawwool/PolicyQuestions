@@ -156,6 +156,14 @@ namespace PolicyQuestionsWF
                     {
                         q.ShowHide.Invoke(q.InvokeThisQuestion());
                     }
+                    q.LogicalChildren.ForEach(r =>
+                    {
+                        if (r.ShowHide != null)
+                        {
+                            r.ShowHide.Invoke(r.InvokeThisQuestion());
+                        }
+                    });
+
                 });
                 s.LogicalChildren.ForEach(q =>
                 {

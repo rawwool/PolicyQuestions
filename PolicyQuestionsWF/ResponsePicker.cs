@@ -27,8 +27,11 @@ namespace PolicyQuestionsWF
             {
                 case enumDataCaptureType.DateTimePicker:
                     DateTimePicker picker = new DateTimePicker();
+                    picker.Format = DateTimePickerFormat.Custom;
+                    picker.CustomFormat = "yyyy-MM-dd";
                     if (userResponse != null) picker.Value = DateTime.Parse(userResponse);
                     picker.ValueChanged += Picker_ValueChanged;
+                    if (userResponse == null) picker.Value = DateTime.Today;
                     
                     this.flowLayoutPanel1.Controls.Add(picker);
                     break;
@@ -38,6 +41,7 @@ namespace PolicyQuestionsWF
                     textBox.Width = 350;
                     if (userResponse != null) textBox.Text = userResponse;
                     textBox.TextChanged += TextBox_TextChanged;
+                    if (userResponse == null) textBox.Text = "";
                     this.flowLayoutPanel1.Controls.Add(textBox);
                     break;
                 case enumDataCaptureType.DropDown:
@@ -46,6 +50,7 @@ namespace PolicyQuestionsWF
                     combo.DataSource = possibleResponses;
                     if (userResponse != null) combo.SelectedValue = userResponse;
                     combo.SelectedValueChanged += Combo_SelectedValueChanged;
+                    if (userResponse == null) combo.SelectedValue = possibleResponses.FirstOrDefault();
                     this.flowLayoutPanel1.Controls.Add(combo);
                     break;
                 case enumDataCaptureType.RadioButton:
@@ -53,6 +58,8 @@ namespace PolicyQuestionsWF
                     //panel.Dock = DockStyle.Fill;
                     //panel.AutoSize = true;
                     //this.flowLayoutPanel1.Controls.Add(panel);
+                    bool rbOneInvoked = false;
+                    RadioButton rbOne = null;
                     possibleResponses.ToList().ForEach(s =>
                     {
                         RadioButton rb = new RadioButton();
@@ -61,8 +68,15 @@ namespace PolicyQuestionsWF
                         rb.Text = s;
                         if (userResponse != null && rb.Text == userResponse) rb.Checked = true;
                         rb.CheckedChanged += Rb_CheckedChanged;
+                        if (userResponse == null)
+                            if (rbOneInvoked == false)
+                            {
+                                rbOne = rb;
+                                rbOneInvoked = true;
+                            }
                         this.flowLayoutPanel1.Controls.Add(rb);
                     });
+                    if (rbOne != null) rbOne.Checked = true;
                     break;
                 case enumDataCaptureType.TextBoxAndNotSureCheckBox:
                     var textBox2 = new TextBox();
@@ -107,7 +121,7 @@ namespace PolicyQuestionsWF
         {
             if (Changed != null)
             {
-                Changed.Invoke((sender as DateTimePicker).Value.ToString());
+                Changed.Invoke((sender as DateTimePicker).Value.ToString("yyyy-MM-dd"));
             }
         }
     }

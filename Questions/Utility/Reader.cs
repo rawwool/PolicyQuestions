@@ -117,6 +117,7 @@ namespace Questions.Utility
 
         private static string GetValue(System.Array values, int row, int column)
         {
+            if (row * column == 0) return string.Empty;
             try
             {
                 object value = values.GetValue(row, column);
@@ -157,6 +158,7 @@ namespace Questions.Utility
                 int subQuestionTextColumnIndex = GetColumnIndex(columns, "sub-Question");
                 int apiRequestFieldColumnIndex = GetColumnIndex(columns, "API Request Field");
                 int apiResourceFieldIndex = GetColumnIndex(columns, "API Resource");
+                int uiValidationIndex = GetColumnIndex(columns, "UI Validation");
                 Question parentQuestion = null;
                 for (int i = 2; i <= rowCount; i++)
                 {
@@ -164,6 +166,7 @@ namespace Questions.Utility
                     string questionText = GetValue(xlRangeValues, i, questionTextColumnIndex);
                     string subQuestionText = GetValue(xlRangeValues, i, subQuestionTextColumnIndex);
                     string displayRule = GetValue(xlRangeValues, i, displayRuleColumnIndex);
+
                     if (string.IsNullOrWhiteSpace(reference)
                         && string.IsNullOrWhiteSpace(questionText)
                         && string.IsNullOrWhiteSpace(subQuestionText)) continue;
@@ -180,6 +183,7 @@ namespace Questions.Utility
                         DataCaptureType = ConvertToType<enumDataCaptureType>(GetValue(xlRangeValues, i, dataTypeColumnIndex)),
                         APIRequestField = GetValue(xlRangeValues, i, apiRequestFieldColumnIndex),
                         APIResource = GetValue(xlRangeValues, i, apiResourceFieldIndex),
+                        UIValdationMessage = GetValue(xlRangeValues, i, uiValidationIndex),
                         ResponseChoices = GetValue(xlRangeValues, i, answersColumnIndex).Split('\n').Where(s => s.Trim().Length > 0).ToList()
                     };
 
