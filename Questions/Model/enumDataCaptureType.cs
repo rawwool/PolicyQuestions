@@ -14,6 +14,8 @@ namespace Questions.Model
         DateTimePicker,
         [Description("Text box & not sure button")]
         TextBoxAndNotSureCheckBox,
+        [Description("Checkbox, check box, boolean")]
+        CheckBox,
         //[Description("Slidebar, slide bar")]
         //SlideBar,
         [Description("N/A, NA, Not applicable")]

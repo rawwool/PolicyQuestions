@@ -20,7 +20,6 @@ namespace PolicyQuestionsWF
             InitializeComponent();
             this.Text = GetCaption(""); 
         }
-           
 
         private void PolulateTabs()
         {
@@ -30,7 +29,7 @@ namespace PolicyQuestionsWF
             {
                 AddButton(category, Label_Click);
             }
-            AddButton("Response", ShowJson);
+            AddButton("Requests", ShowJson);
         }
 
         private void AddButton(string category, EventHandler handler)
@@ -57,7 +56,7 @@ namespace PolicyQuestionsWF
                 var response = Questions.Utility.Questions.GetResponseJSON();
                 this.SuspendLayout();
                 string viewerName = "JSONViewer";
-                label1.Text = "Response body";
+                label1.Text = "Request bodies";
 
                 this.flowLayoutPanel1.Controls.Clear();
                 response.ToList().ForEach(s =>
@@ -150,6 +149,10 @@ namespace PolicyQuestionsWF
                });
             questions.ForEach(s =>
             {
+                if (s.ShowHide != null)
+                {
+                    s.ShowHide.Invoke(s.InvokeThisQuestion());
+                }
                 s.Children.ForEach(q =>
                 {
                     if (q.ShowHide != null)

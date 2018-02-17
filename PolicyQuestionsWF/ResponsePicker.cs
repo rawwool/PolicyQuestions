@@ -78,6 +78,24 @@ namespace PolicyQuestionsWF
                     });
                     if (rbOne != null) rbOne.Checked = true;
                     break;
+                case enumDataCaptureType.CheckBox:
+                    CheckBox checkBoxChoice = new CheckBox();
+                    checkBoxChoice.Text = possibleResponses.FirstOrDefault();
+                    bool state = false;
+
+                    if (userResponse != null)
+                    {
+                        bool.TryParse(userResponse, out state);
+                        checkBoxChoice.Checked = state;
+                    }
+                    checkBoxChoice.CheckedChanged += CheckBoxChoice_CheckedChanged;
+                    if (userResponse == null)
+                    {
+                        checkBoxChoice.Checked = true;
+                        checkBoxChoice.Checked = false;
+                    }
+                    this.flowLayoutPanel1.Controls.Add(checkBoxChoice);
+                    break;
                 case enumDataCaptureType.TextBoxAndNotSureCheckBox:
                     var textBox2 = new TextBox();
                     //textBox2.Multiline = true;
@@ -90,6 +108,14 @@ namespace PolicyQuestionsWF
                     break;
                 case enumDataCaptureType.NoDataCapture:
                     break;
+            }
+        }
+
+        private void CheckBoxChoice_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Changed != null)
+            {
+                Changed.Invoke((sender as CheckBox).Checked ? "true" : "false");
             }
         }
 
