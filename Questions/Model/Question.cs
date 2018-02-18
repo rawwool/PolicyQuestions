@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Questions.Model
 {
+    [Serializable]
     public class Question
     {
         public string Category { get; set; }
@@ -25,6 +26,7 @@ namespace Questions.Model
 
         public enumDataCaptureType DataCaptureType { get; set; }
 
+        [Serializable]
         public class ResponseChoice
         {
             public string Display { get; set; }
@@ -48,6 +50,8 @@ namespace Questions.Model
 
         public string APIRequestField { get; set; }
 
+        public bool HasArrayOfChildren {  get { return APIRequestField.TrimEnd().EndsWith("[]"); } }
+
         public string UIValdationMessage { get; set; }
         public string APIResource { get; set; }
         public string InternalInfo
@@ -63,6 +67,7 @@ namespace Questions.Model
             }
         }
 
+        [NonSerialized]
         public Action<bool> ShowHide;
 
         public Question()

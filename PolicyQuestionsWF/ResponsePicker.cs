@@ -48,6 +48,8 @@ namespace PolicyQuestionsWF
                 case enumDataCaptureType.DropDown:
                     var combo = new ComboBox();
                     combo.DropDownStyle = ComboBoxStyle.DropDownList;
+                    //combo.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                    combo.Width = 350;
                     combo.DataSource = possibleResponses;
                     combo.DisplayMember = "Display";
                     if (userResponse != null) combo.SelectedValue = userResponse;
@@ -68,6 +70,7 @@ namespace PolicyQuestionsWF
                         rb.AutoSize = true;
                         rb.Margin = new Padding(2);
                         rb.Text = s.Display;
+                        rb.Tag = s;
                         if (userResponse != null && rb.Text == userResponse) rb.Checked = true;
                         rb.CheckedChanged += Rb_CheckedChanged;
                         if (userResponse == null)
@@ -125,7 +128,8 @@ namespace PolicyQuestionsWF
         {
             if (Changed != null && (sender as RadioButton).Checked)
             {
-                Changed.Invoke(new ResponseChoice((sender as RadioButton).Text.ToString()));
+                //Changed.Invoke(new ResponseChoice((sender as RadioButton).Text.ToString()));
+                Changed.Invoke(((sender as RadioButton).Tag) as ResponseChoice);
             }
         }
 

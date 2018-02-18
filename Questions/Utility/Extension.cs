@@ -3,7 +3,9 @@ using Questions.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -43,6 +45,25 @@ namespace Questions.Utility
     }
     public static class Extension
     {
+       
+
+
+        /// <summary>
+        /// If you mark all involved classes as serializable you can :
+        /// https://stackoverflow.com/questions/14007405/how-create-a-new-deep-copy-clone-of-a-listt
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="oldList"></param>
+        /// <returns></returns>
+        public static List<T> CloneList<T>(this List<T> oldList)
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            MemoryStream stream = new MemoryStream();
+            formatter.Serialize(stream, oldList);
+            stream.Position = 0;
+            return (List<T>)formatter.Deserialize(stream);
+        }
+
         /// <summary>
         /// Gets an attribute on an enum field value
         /// </summary>

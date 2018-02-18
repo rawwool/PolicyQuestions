@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Questions.Utility
 {
+    [Serializable]
     public class Expression
     {
         public Question Question { get; set; }
@@ -15,6 +16,7 @@ namespace Questions.Utility
         public bool Positive { get; set; }
     }
 
+    [Serializable]
     public class Expressions
     {
         List<Expression> _Expressions = new List<Expression>();
