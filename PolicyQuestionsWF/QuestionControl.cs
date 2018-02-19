@@ -200,14 +200,14 @@ namespace PolicyQuestionsWF
                 childQuestionsPanel.AutoScroll = true;
                 childQuestionsPanel.AutoSize = true;
                 childQuestionsPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-                childQuestionsPanel.BackColor = System.Drawing.SystemColors.Control;
+                childQuestionsPanel.BackColor = System.Drawing.SystemColors.ControlLight;
                 childQuestionsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
                 childQuestionsPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
                 //childQuestionsPanel.Location = new System.Drawing.Point(27, 49);
-                childQuestionsPanel.Margin = new System.Windows.Forms.Padding(0, 1, 1, 0);
-                childQuestionsPanel.Name = "flowLayoutPanel2";
+                childQuestionsPanel.Margin = new System.Windows.Forms.Padding(0, 3, 3, 0);
+                //childQuestionsPanel.Name = "flowLayoutPanel3";
                 childQuestionsPanel.Size = new System.Drawing.Size(42, 0);
-                childQuestionsPanel.TabIndex = 5;
+                //childQuestionsPanel.TabIndex = 5;
                 childQuestionsPanel.WrapContents = false;
 
                 question.Children.Skip(i).Take(setCount).ToList().ForEach(s =>
