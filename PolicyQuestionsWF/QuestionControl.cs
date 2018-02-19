@@ -95,9 +95,13 @@ namespace PolicyQuestionsWF
             this.SetHeight();
             // If this control is the parent of a logical child, then the child may physically belong to
             // a common parent. Therefore the parent needs to recalculate the height too to cover this scenario.
-            if (this.Parent != null && this.Parent.Parent != null && this.Parent.Parent.Parent != null && this.Parent.Parent.Parent is QuestionControl)
+            if (this.Parent != null 
+                && this.Parent.Parent != null
+                && this.Parent.Parent.Parent != null
+                && this.Parent.Parent.Parent.Parent != null
+                && this.Parent.Parent.Parent.Parent is QuestionControl)
             {
-                (this.Parent.Parent.Parent as QuestionControl).SetHeight();
+                (this.Parent.Parent.Parent.Parent as QuestionControl).SetHeight();
             }
 
             this.Invalidate();
@@ -194,7 +198,7 @@ namespace PolicyQuestionsWF
                 question.ChildSetCount++;
             }
 
-            if (question.ChildSetCount > 0)
+            if (!question.HasArrayOfChildren || question.ChildSetCount > 0)
             {
                 this.flowLayoutPanel2.Controls.Clear();
                 //question.Children.ForEach(s =>
