@@ -142,7 +142,7 @@ namespace PolicyQuestionsWF
             _Question = question;
             question.ShowHide = this.ShowHideQuestion;//  (Show) => { if (Show) this.Show(); else this.Hide(); }; 
             this.labelReference.Text = question.Ref;
-            this.labelReference.Tag = question.ToString() + Environment.NewLine + question.Expressions;
+            this.labelReference.Tag = question.ToString() + Environment.NewLine + "Expression:" + question.Expressions;
             this.labelQuestion.Text = question.Text;
             //this.labelHelp.Text = question.HelpText;
             this.panelResponse.Controls.Clear();
@@ -161,7 +161,7 @@ namespace PolicyQuestionsWF
                 this.flowLayoutPanel1.Controls.Add(button);
                 this.flowLayoutPanel1.Controls.SetChildIndex(button, 3);
             }
-            //else
+
             AddChildQuestions(question, false);
             
             SetHeight();
@@ -184,43 +184,50 @@ namespace PolicyQuestionsWF
             if (question.HasArrayOfChildren && additional/*question.Children.Count() == this.flowLayoutPanel2.Controls.Count * distinctChildren.Count()*/ )
             {
                 var distinctChildren = question.Children.GroupBy(s => s.Ref).Select(s => s.First()).ToList();
-                // We already have all the child questions rendered on UI
-                // We now have to add a new set of child questions
-                var questionsToRender = distinctChildren.CloneList<Question>();
-                question.Children.AddRange(questionsToRender);
-            }
-            
-            this.flowLayoutPanel2.Controls.Clear();
-            //question.Children.ForEach(s =>
-            int setCount = question.Children.GroupBy(s => s.Text).Count();
-            int questionCount = question.Children.Count();
-            for (int i = 0; i < questionCount; i+= setCount)
-            {
-                FlowLayoutPanel childQuestionsPanel = new FlowLayoutPanel();
-                childQuestionsPanel.AutoScroll = true;
-                childQuestionsPanel.AutoSize = true;
-                childQuestionsPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-                childQuestionsPanel.BackColor = System.Drawing.SystemColors.ControlLight;
-                childQuestionsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-                childQuestionsPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-                //childQuestionsPanel.Location = new System.Drawing.Point(27, 49);
-                childQuestionsPanel.Margin = new System.Windows.Forms.Padding(0, 3, 3, 0);
-                //childQuestionsPanel.Name = "flowLayoutPanel3";
-                childQuestionsPanel.Size = new System.Drawing.Size(42, 0);
-                //childQuestionsPanel.TabIndex = 5;
-                childQuestionsPanel.WrapContents = false;
-
-                question.Children.Skip(i).Take(setCount).ToList().ForEach(s =>
+                if (question.Children.Count() == question.ChildSetCount * distinctChildren.Count)
                 {
-                    QuestionControl control = new QuestionControl(550, 500);
-                    control.SetQuestion(s);
+                    // We now have to add a new set of child questions
+                    var questionsToRender = distinctChildren.CloneList<Question>();
+                    questionsToRender.ForEach(q => q.ChildSetCount = 0);
+                    question.Children.AddRange(questionsToRender);
+                }
+                question.ChildSetCount++;
+            }
+
+            if (question.ChildSetCount > 0)
+            {
+                this.flowLayoutPanel2.Controls.Clear();
+                //question.Children.ForEach(s =>
+                int setCount = question.Children.GroupBy(s => s.Text).Count();
+                int questionCount = question.Children.Count();
+                for (int i = 0; i < questionCount; i += setCount)
+                {
+                    FlowLayoutPanel childQuestionsPanel = new FlowLayoutPanel();
+                    childQuestionsPanel.AutoScroll = true;
+                    childQuestionsPanel.AutoSize = true;
+                    childQuestionsPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+                    childQuestionsPanel.BackColor = System.Drawing.SystemColors.ControlLight;
+                    childQuestionsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+                    childQuestionsPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+                    //childQuestionsPanel.Location = new System.Drawing.Point(27, 49);
+                    childQuestionsPanel.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
+                    //childQuestionsPanel.Name = "flowLayoutPanel3";
+                    childQuestionsPanel.Size = new System.Drawing.Size(42, 0);
+                    //childQuestionsPanel.TabIndex = 5;
+                    childQuestionsPanel.WrapContents = false;
+
+                    question.Children.Skip(i).Take(setCount).ToList().ForEach(s =>
+                    {
+                        QuestionControl control = new QuestionControl(550, 500);
+                        control.SetQuestion(s);
                     //this.flowLayoutPanel2.Controls.Add(control);
                     childQuestionsPanel.Controls.Add(control);
-                    s.ShowHide(s.InvokeThisQuestion());
-                });
+                        s.ShowHide(s.InvokeThisQuestion());
+                    });
 
-                this.flowLayoutPanel2.Controls.Add(childQuestionsPanel);
-            };
+                    this.flowLayoutPanel2.Controls.Add(childQuestionsPanel);
+                };
+            }
         }
 
         public void SetHeight()

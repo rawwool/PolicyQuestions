@@ -667,7 +667,10 @@ namespace Questions.Utility
 
                         if (isArray)
                         {
-                            node.AddToArrayOfChildren(new QuestionNode(q.Q));
+                            if (node.Question.ChildSetCount > 0)
+                            {
+                                node.AddToArrayOfChildren(new QuestionNode(q.Q));
+                            }
                         }
                         else
                         {

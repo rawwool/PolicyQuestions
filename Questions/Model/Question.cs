@@ -17,6 +17,16 @@ namespace Questions.Model
         //public Tuple<Question, string, bool, string> ConditionForPresentation { get; set; }
 
         public Expressions Expressions { get; set; }
+
+        /// <summary>
+        /// Represents the count of 'sets' of choldren in the Cildren collection
+        /// For example, if the template defines 4 questions to be children in 
+        /// a question of array type, each set of 4 questions will count as 1.
+        /// The user interface can add or remove one set of question at a time.
+        /// This count comes in consideration only for 'array' type of parent 
+        /// questions (with APIField with [] at the end)
+        /// </summary>
+        public int ChildSetCount { get; set; }
         public List<Question> Children { get; set; }
         public List<Question> LogicalChildren { get; set; }
         public string Ref { get; set; }
@@ -75,6 +85,7 @@ namespace Questions.Model
             Children = new List<Question>();
             LogicalChildren = new List<Question>();
             UserResponse = new ResponseChoice();
+            ChildSetCount = 0;
         }
 
         public bool InvokeThisQuestion()
