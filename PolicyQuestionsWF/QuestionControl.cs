@@ -149,7 +149,7 @@ namespace PolicyQuestionsWF
             ResponsePicker responsePicker = new ResponsePicker();
             responsePicker.Changed = ResponseChanged;
 
-            responsePicker.SetResponseDataCaptureType(question.DataCaptureType, question.ResponseChoices, question.UserResponse.Display);
+            responsePicker.SetResponseDataCaptureType(question.DataCaptureType, question.ResponseChoices, question.UserResponse);
             this.panelResponse.Controls.Add(responsePicker);
             if (question.HasArrayOfChildren)
             {
@@ -162,9 +162,8 @@ namespace PolicyQuestionsWF
                 this.flowLayoutPanel1.Controls.SetChildIndex(button, 3);
             }
             //else
-            {
-                AddChildQuestions(question);
-            }
+            AddChildQuestions(question, false);
+            
             SetHeight();
             this.ResumeLayout();
             this.Refresh();
@@ -173,47 +172,55 @@ namespace PolicyQuestionsWF
         private void Button_Click(object sender, EventArgs e)
         {
             this.SuspendLayout();
-            AddChildQuestions(_Question);
+            AddChildQuestions(_Question, true);
             SetHeight();
             this.ResumeLayout();
             this.Refresh();
         }
 
-        private void AddChildQuestions(Question question)
+        private void AddChildQuestions(Question question, bool additional)
         {
-            var distinctChildren = question.Children.Distinct().ToList();
-     
             //Add this to the question's children collection if needed:
-            if (question.HasArrayOfChildren && question.Children.Count() == this.flowLayoutPanel2.Controls.Count * distinctChildren.Count() )
+            if (question.HasArrayOfChildren && additional/*question.Children.Count() == this.flowLayoutPanel2.Controls.Count * distinctChildren.Count()*/ )
             {
+                var distinctChildren = question.Children.GroupBy(s => s.Ref).Select(s => s.First()).ToList();
                 // We already have all the child questions rendered on UI
                 // We now have to add a new set of child questions
-                distinctChildren = distinctChildren.CloneList<Question>();
-                question.Children.AddRange(distinctChildren);
+                var questionsToRender = distinctChildren.CloneList<Question>();
+                question.Children.AddRange(questionsToRender);
             }
-            FlowLayoutPanel childQuestionsPanel = new FlowLayoutPanel();
-            childQuestionsPanel.AutoScroll = true;
-            childQuestionsPanel.AutoSize = true;
-            childQuestionsPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            childQuestionsPanel.BackColor = System.Drawing.SystemColors.Control;
-            childQuestionsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            childQuestionsPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            //childQuestionsPanel.Location = new System.Drawing.Point(27, 49);
-            childQuestionsPanel.Margin = new System.Windows.Forms.Padding(0, 3, 3, 0);
-            childQuestionsPanel.Name = "flowLayoutPanel2";
-            childQuestionsPanel.Size = new System.Drawing.Size(42, 0);
-            childQuestionsPanel.TabIndex = 5;
-            childQuestionsPanel.WrapContents = false;
-
-            distinctChildren.ForEach(s =>
+            
+            this.flowLayoutPanel2.Controls.Clear();
+            //question.Children.ForEach(s =>
+            int setCount = question.Children.GroupBy(s => s.Text).Count();
+            int questionCount = question.Children.Count();
+            for (int i = 0; i < questionCount; i+= setCount)
             {
-                QuestionControl control = new QuestionControl(550, 500);
-                control.SetQuestion(s);
-                //this.flowLayoutPanel2.Controls.Add(control);
-                childQuestionsPanel.Controls.Add(control);
-                s.ShowHide(s.InvokeThisQuestion());
-            });
-            this.flowLayoutPanel2.Controls.Add(childQuestionsPanel);
+                FlowLayoutPanel childQuestionsPanel = new FlowLayoutPanel();
+                childQuestionsPanel.AutoScroll = true;
+                childQuestionsPanel.AutoSize = true;
+                childQuestionsPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+                childQuestionsPanel.BackColor = System.Drawing.SystemColors.Control;
+                childQuestionsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+                childQuestionsPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+                //childQuestionsPanel.Location = new System.Drawing.Point(27, 49);
+                childQuestionsPanel.Margin = new System.Windows.Forms.Padding(0, 1, 1, 0);
+                childQuestionsPanel.Name = "flowLayoutPanel2";
+                childQuestionsPanel.Size = new System.Drawing.Size(42, 0);
+                childQuestionsPanel.TabIndex = 5;
+                childQuestionsPanel.WrapContents = false;
+
+                question.Children.Skip(i).Take(setCount).ToList().ForEach(s =>
+                {
+                    QuestionControl control = new QuestionControl(550, 500);
+                    control.SetQuestion(s);
+                    //this.flowLayoutPanel2.Controls.Add(control);
+                    childQuestionsPanel.Controls.Add(control);
+                    s.ShowHide(s.InvokeThisQuestion());
+                });
+
+                this.flowLayoutPanel2.Controls.Add(childQuestionsPanel);
+            };
         }
 
         public void SetHeight()
@@ -239,7 +246,7 @@ namespace PolicyQuestionsWF
                         {
                             if (control.DisplayRectangle.Height > 0)
                             {
-                                innerHeight += control.DisplayRectangle.Height + control.Padding.Size.Height * 2 + control.Margin.Size.Height * 2;
+                                innerHeight += control.DisplayRectangle.Height + /*control.Padding.Size.Height * 2 +*/ control.Margin.Size.Height * 2;
                             }
                         }
                     }

@@ -21,7 +21,7 @@ namespace PolicyQuestionsWF
 
         public Action<ResponseChoice> Changed;
 
-        public void SetResponseDataCaptureType(enumDataCaptureType type, IEnumerable<ResponseChoice> possibleResponses, string userResponse)
+        public void SetResponseDataCaptureType(enumDataCaptureType type, IEnumerable<ResponseChoice> possibleResponses, ResponseChoice userResponse)
         {
             this.AutoSize = true;
             switch(type)
@@ -30,7 +30,7 @@ namespace PolicyQuestionsWF
                     DateTimePicker picker = new DateTimePicker();
                     picker.Format = DateTimePickerFormat.Custom;
                     picker.CustomFormat = "yyyy-MM-dd";
-                    if (userResponse != null) picker.Value = DateTime.Parse(userResponse);
+                    if (userResponse != null && userResponse.Display != null) picker.Value = DateTime.Parse(userResponse.Display);
                     picker.ValueChanged += Picker_ValueChanged;
                     if (userResponse == null) picker.Value = DateTime.Today;
                     
@@ -40,7 +40,7 @@ namespace PolicyQuestionsWF
                     var textBox = new TextBox();
                     //textBox.Multiline = true;
                     textBox.Width = 350;
-                    if (userResponse != null) textBox.Text = userResponse;
+                    if (userResponse != null) textBox.Text = userResponse.Display;
                     textBox.TextChanged += TextBox_TextChanged;
                     if (userResponse == null) textBox.Text = "";
                     this.flowLayoutPanel1.Controls.Add(textBox);
@@ -52,9 +52,15 @@ namespace PolicyQuestionsWF
                     combo.Width = 350;
                     combo.DataSource = possibleResponses;
                     combo.DisplayMember = "Display";
-                    if (userResponse != null) combo.SelectedValue = userResponse;
+                    if (userResponse != null)
+                    {
+                        combo.SelectedValue = possibleResponses.FirstOrDefault(s => s.Value == userResponse.Value);
+                    }
+                    else
+                    {
+                        combo.SelectedValue = possibleResponses.FirstOrDefault();
+                    }
                     combo.SelectedValueChanged += Combo_SelectedValueChanged;
-                    if (userResponse == null) combo.SelectedValue = possibleResponses.FirstOrDefault();
                     this.flowLayoutPanel1.Controls.Add(combo);
                     break;
                 case enumDataCaptureType.RadioButton:
@@ -71,7 +77,7 @@ namespace PolicyQuestionsWF
                         rb.Margin = new Padding(2);
                         rb.Text = s.Display;
                         rb.Tag = s;
-                        if (userResponse != null && rb.Text == userResponse) rb.Checked = true;
+                        if (userResponse != null && rb.Text == userResponse.Display) rb.Checked = true;
                         rb.CheckedChanged += Rb_CheckedChanged;
                         if (userResponse == null)
                             if (rbOneInvoked == false)
@@ -90,7 +96,7 @@ namespace PolicyQuestionsWF
 
                     if (userResponse != null)
                     {
-                        bool.TryParse(userResponse, out state);
+                        bool.TryParse(userResponse.Display, out state);
                         checkBoxChoice.Checked = state;
                     }
                     checkBoxChoice.CheckedChanged += CheckBoxChoice_CheckedChanged;
