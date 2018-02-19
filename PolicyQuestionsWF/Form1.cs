@@ -18,7 +18,9 @@ namespace PolicyQuestionsWF
         public Form1()
         {
             InitializeComponent();
-            this.Text = GetCaption(""); 
+            this.Text = GetCaption("");
+            tableLayoutPanel2.Hide();
+            splitContainer1.Hide();
         }
 
         private void PolulateTabs()
@@ -134,6 +136,8 @@ namespace PolicyQuestionsWF
         private void LoadQuestions(string group)
         {
             this.SuspendLayout();
+            tableLayoutPanel2.Show();
+            splitContainer1.Show();
             this.flowLayoutPanel1.Hide(); 
             this.flowLayoutPanel1.Controls.Clear();
 
