@@ -111,11 +111,16 @@ namespace PolicyQuestionsWF
                     var textBox2 = new TextBox();
                     textBox2.Name = "TextBoxAndNotSureCheckBox_TextBox";
                     //textBox2.Multiline = true;
-                    textBox2.TextChanged += TextBoxAndNotSureCheckBo_Changed;
-                    this.flowLayoutPanel1.Controls.Add(textBox2);
                     CheckBox checkBox = new CheckBox();
                     checkBox.Text = "Not sure";
                     checkBox.Name = "TextBoxAndNotSureCheckBox_CheckBox";
+                    if (userResponse != null)
+                    {
+                        if (userResponse.Display == checkBox.Text) checkBox.Checked = true;
+                        else textBox2.Text = userResponse.Display;
+                    }
+                    textBox2.TextChanged += TextBoxAndNotSureCheckBo_Changed;
+                    this.flowLayoutPanel1.Controls.Add(textBox2);
                     checkBox.CheckedChanged += TextBoxAndNotSureCheckBo_Changed;
                     this.flowLayoutPanel1.Controls.Add(checkBox);
 
