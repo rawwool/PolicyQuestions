@@ -30,7 +30,7 @@
         {
             this.labelQuestion = new System.Windows.Forms.Label();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.labelReference = new System.Windows.Forms.LinkLabel();
+            this.labelReference = new LinkLabelEx();
             this.panelResponse = new System.Windows.Forms.Panel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.flowLayoutPanel1.SuspendLayout();
@@ -129,7 +129,7 @@
         private System.Windows.Forms.Label labelQuestion;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Panel panelResponse;
-        private System.Windows.Forms.LinkLabel labelReference;
+        private LinkLabelEx labelReference;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
     }
 }

@@ -109,16 +109,36 @@ namespace PolicyQuestionsWF
                     break;
                 case enumDataCaptureType.TextBoxAndNotSureCheckBox:
                     var textBox2 = new TextBox();
+                    textBox2.Name = "TextBoxAndNotSureCheckBox_TextBox";
                     //textBox2.Multiline = true;
-
+                    textBox2.TextChanged += TextBoxAndNotSureCheckBo_Changed;
                     this.flowLayoutPanel1.Controls.Add(textBox2);
                     CheckBox checkBox = new CheckBox();
                     checkBox.Text = "Not sure";
+                    checkBox.Name = "TextBoxAndNotSureCheckBox_CheckBox";
+                    checkBox.CheckedChanged += TextBoxAndNotSureCheckBo_Changed;
                     this.flowLayoutPanel1.Controls.Add(checkBox);
 
                     break;
                 case enumDataCaptureType.NoDataCapture:
                     break;
+            }
+        }
+
+        private void TextBoxAndNotSureCheckBo_Changed(object sender, EventArgs e)
+        {
+            if (Changed != null)
+            {
+                var checkBox = this.flowLayoutPanel1.Controls.Find("TextBoxAndNotSureCheckBox_CheckBox", false).FirstOrDefault();
+                var textBox = this.flowLayoutPanel1.Controls.Find("TextBoxAndNotSureCheckBox_TextBox", false).FirstOrDefault();
+                if (checkBox != null && checkBox is CheckBox && (checkBox as CheckBox).Checked)
+                {
+                    Changed.Invoke(new ResponseChoice(checkBox.Text));
+                }
+                else if (textBox != null && textBox is TextBox)
+                {
+                    Changed.Invoke(new ResponseChoice(textBox.Text.Trim()));
+                }
             }
         }
 

@@ -224,6 +224,27 @@ namespace Questions.Utility
 
         private static List<Question.ResponseChoice> GetResponseChoice(List<string> list)
         {
+            //LookUp='Dynamic QS Occupations'!E2070:F2097
+            //If the list has one item and with the above signature, it is a look up of name + value columns
+            if (list.Count() == 1 && list.First().StartsWith("LookUp"))
+            {
+                /*https://social.msdn.microsoft.com/Forums/office/en-US/afd01976-63d0-4f96-9ba4-e3e2b6cf8d55/excel-with-c-how-to-specify-a-range-?forum=vsto
+                //New Application
+                Excel.Application excelApp = new Microsoft.Office.Interop.Excel.Application();
+                excelApp.Visible = true;
+ 
+                //create a new blank workbook
+                excelApp.Workbooks.Add(Type.Missing);
+                //create a new blank worksheet in current workbook
+                excelApp.Worksheets.Add(Type.Missing, Type.Missing, 1, Type.Missing);
+ 
+                Excel.Worksheet ws = excelApp.ActiveSheet as Excel.Worksheet;
+                //Get the range using number index
+                Excel.Range newRng = excelApp.get_Range(ws.Cells[1,1], ws.Cells[4, 5]);
+                newRng.Value2 = "Test String put in Cells";
+                */
+            }
+
             return list.Select(s =>
             {
                 var splits = s.Split('=');
