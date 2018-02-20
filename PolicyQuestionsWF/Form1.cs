@@ -130,7 +130,17 @@ namespace PolicyQuestionsWF
 
         private void LinkLabel_Click(object sender, EventArgs e)
         {
-            //throw new NotImplementedException();
+            if (sender is LinkLabel && (sender as LinkLabel).Tag is Questions.Utility.APIRequest)
+            {
+                //MessageBox.Show(((sender as LinkLabel).Tag as Questions.Utility.APIRequest).JSONBody);
+                ProcessRequest((sender as LinkLabel).Text, ((sender as LinkLabel).Tag as Questions.Utility.APIRequest).JSONBody);
+            }
+        }
+
+        private void ProcessRequest(string resource, string jSONBody)
+        {
+            var result = Questions.Web.Service.TestExecutePostRequest("https://hiscox-uk-dev.apigee.net/misdev/", resource, jSONBody);
+            MessageBox.Show(result.Message, result.StstusCode.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void LoadQuestions(string group)
