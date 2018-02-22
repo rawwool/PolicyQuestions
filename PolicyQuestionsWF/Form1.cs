@@ -15,12 +15,20 @@ namespace PolicyQuestionsWF
 {
     public partial class Form1 : Form
     {
+        const string QUESTIONS_FILE = "questions.json";
         public Form1()
         {
             InitializeComponent();
             this.Text = GetCaption("");
             tableLayoutPanel2.Hide();
             splitContainer1.Hide();
+
+            if (Questions.Utility.Questions.DeserialiseQuestions(QUESTIONS_FILE))
+            {
+                LoadQuestions("About you");
+                PolulateTabs();
+                this.Text = GetCaption("Cached Reference Data");
+            }
         }
 
         private void PolulateTabs()
@@ -250,6 +258,7 @@ namespace PolicyQuestionsWF
 
                         LoadQuestions("About you");
                         PolulateTabs();
+                        Questions.Utility.Questions.SerilaiseQuestions(QUESTIONS_FILE);
                         this.Text = GetCaption(ofd.FileName);
                     }
                 }
@@ -266,6 +275,13 @@ namespace PolicyQuestionsWF
             string caption = $"Prashn v{version.Major}.{version.Minor}";
             if (!string.IsNullOrEmpty(fileName)) caption +=  $" - {Path.GetFileNameWithoutExtension(fileName)}";
             return caption;
+        }
+
+        private void exportReferenceDataToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var data =  Questions.Utility.Questions.GetReferenceData().Select(s=>s.ToString()).Aggregate((a,b) => $"{a}\n\n{b}");
+            Clipboard.SetText(data);
+
         }
     }
 }

@@ -196,7 +196,7 @@ namespace Questions.Utility
                     if (string.IsNullOrEmpty(question.Text.Trim()))
                     {
                         question.Text = subQuestionText;
-                        question.Parent = parentQuestion;
+                        question.ParentId = parentQuestion.Id;
                         parentQuestion.Children.Add(question);
                     }
                     else
@@ -205,9 +205,13 @@ namespace Questions.Utility
                         listOfQUestions.Add(question);
                     }
 
-                    question.Expressions.Questions.ToList().ForEach(s => s.LogicalChildren.Add(question));
+                    //question.Expressions.Questions.ToList().ForEach(s => listOfQUestions.First(q=>q.Id == s).LogicalChildren.Add(question));
 
                     question.HelpText = $"{GetValue(xlRangeValues, i, helpColumnIndex)}\nDisplay rule:{displayRule}";
+                }
+                foreach(var question in listOfQUestions)
+                {
+                    question.Expressions.Questions.ToList().ForEach(s => listOfQUestions.First(q => q.Id == s).LogicalChildren.Add(question));
                 }
             }
             catch(InvalidOperationException ex)
@@ -306,10 +310,13 @@ namespace Questions.Utility
                     string questionId = s.Groups["question"].Success ? s.Groups["question"].Value.Trim() : "none";
                     string response = s.Groups["response"].Success ? s.Groups["response"].Value.Trim() : "none";
                     string comparer = s.Groups["comparer"].Success ? s.Groups["comparer"].Value.Trim() : "none";
+                    var q = GetQuestionFromTreeByRef(listOfQuestions, questionId);
                     var expression = new Expression()
                     {
                         Operator = op,
-                        Question = GetQuestionFromTreeByRef(listOfQuestions, questionId),
+                        QuestionId = q.Id,
+                        QuestionRef = q.Ref,
+                        QuestionUserResponse = q.UserResponse.Display,
                         ValueToCompareWith = response,
                         Positive = Fuzzy.AreSimilar(comparer, "is"),
                     };
@@ -343,7 +350,7 @@ namespace Questions.Utility
                               var expression = new Expression()
                               {
                                   Operator = t.Count() == 3 ? t.First().Trim() : "and",
-                                  Question = GetQuestionFromTreeByRef(listOfQuestions, t.First().Trim()),
+                                  QuestionId = GetQuestionFromTreeByRef(listOfQuestions, t.First().Trim()).Id,
                                   ValueToCompareWith = t.Last().Trim()
                               };
                               return expression;

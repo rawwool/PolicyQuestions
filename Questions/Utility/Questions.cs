@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Questions.Model;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,14 +20,80 @@ namespace Questions.Utility
             return $"{RelativeURL}{Environment.NewLine}{JSONBody}";
         }
     }
+
+    public class ReferenceData
+    {
+        public string Path { get; set; }
+        public string Data { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Path}{Environment.NewLine}{Data}";
+        }
+    }
+
     public class Questions
     {
         private static List<Question> _Questions;
         private static Question _CurrentQuestion;
 
+        public static bool DeserialiseQuestions(string file)
+        {
+            try
+            {
+                if (File.Exists(file))
+                {
+                    _Questions = JsonConvert.DeserializeObject<List<Question>>(File.ReadAllText(file));
+                    return true;
+                }
+            }
+            catch { }
+
+            return false;
+        }
+
+        public static void SerilaiseQuestions(string file)
+        {
+            Serialise(file);
+        }
+
         public static void LoadQuestions(string file, IEnumerable<string> tabs)
         {
+           
             _Questions = Reader.Read(file, tabs);
+            
+        }
+
+        private static void Serialise(string fileName)
+        {
+            //var questions = new List<Question>();
+            //questions.AddRange(_Questions.SelectMany(s => s.Children));
+            //questions.AddRange(_Questions);
+
+            using (var file = File.CreateText(fileName))
+            {
+                file.Write(JsonConvert.SerializeObject(_Questions, Formatting.Indented, new JsonSerializerSettings()));
+                file.Flush();
+            }
+            
+            // serialize JSON directly to a file
+            //using (StreamWriter file = File.CreateText(@"Rio.json"))
+            //{
+            //    JsonSerializer serializer = new JsonSerializer();
+            //    serializer.Serialize(file, questions);
+            //}
+        }
+
+        public static IEnumerable<ReferenceData> GetReferenceData()
+        {
+            var questions = new List<Question>();
+            questions.AddRange(_Questions.SelectMany(s => s.Children));
+            questions.AddRange(_Questions);
+
+            return questions
+                .GroupBy(s => s.APIResource)
+                .OrderBy(s => s.Key)
+                .Select(s => new ReferenceData() { Path = s.Key, Data = JsonConvert.SerializeObject(new { Questions = s }, Formatting.Indented, new JsonSerializerSettings()) });
         }
 
         public static IEnumerable<APIRequest> GetResponseJSON()
@@ -272,7 +340,7 @@ namespace Questions.Utility
             if (_Questions == null) return null;
             if (_CurrentQuestion == null) return _Questions.FirstOrDefault();
             
-            if (_CurrentQuestion.Parent == null)
+            if (_CurrentQuestion.ParentId == null)
             {
                 var firstEligibleChildQuestion = _CurrentQuestion.Children.FirstOrDefault(s => s.InvokeThisQuestion());
                 if (firstEligibleChildQuestion != null)
@@ -287,11 +355,14 @@ namespace Questions.Utility
             }
 
             // We are in the children level
-            var question = GetNextQuestion(_CurrentQuestion.Parent.Children, _CurrentQuestion);
+            Question parent = _Questions.First(s => s.Id == _CurrentQuestion.ParentId);
+            if (parent == null)
+                return null;
+            var question = GetNextQuestion(/*_CurrentQuestion.Parent.Children*/parent.Children, _CurrentQuestion);
             if (question == null)
             {
                 // Go back to top level
-                return GetNextQuestion(_Questions, _CurrentQuestion.Parent);
+                return GetNextQuestion(_Questions, parent);
             }
             return question;
         }

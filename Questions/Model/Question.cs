@@ -11,13 +11,16 @@ namespace Questions.Model
     public class Question
     {
         public string Category { get; set; }
-        public Question Parent { get; set; }
+
+        public string Id { get; set; }
+        public string ParentId { get; set; }
 
         //ParentQuestion, ThisQuestio'sResponse, IsthatPositive, Full Response
         //public Tuple<Question, string, bool, string> ConditionForPresentation { get; set; }
 
         public Expressions Expressions { get; set; }
 
+        [NonSerialized]
         /// <summary>
         /// Represents the count of 'sets' of choldren in the Cildren collection
         /// For example, if the template defines 4 questions to be children in 
@@ -26,7 +29,7 @@ namespace Questions.Model
         /// This count comes in consideration only for 'array' type of parent 
         /// questions (with APIField with [] at the end)
         /// </summary>
-        public int ChildSetCount { get; set; }
+        public int ChildSetCount = 0;
         public List<Question> Children { get; set; }
         public List<Question> LogicalChildren { get; set; }
         public string Ref { get; set; }
@@ -82,6 +85,7 @@ namespace Questions.Model
 
         public Question()
         {
+            Id = Guid.NewGuid().ToString();
             Children = new List<Question>();
             LogicalChildren = new List<Question>();
             UserResponse = new ResponseChoice();

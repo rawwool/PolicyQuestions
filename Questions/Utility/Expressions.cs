@@ -1,4 +1,5 @@
-﻿using Questions.Model;
+﻿using Newtonsoft.Json;
+using Questions.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,10 @@ namespace Questions.Utility
     [Serializable]
     public class Expression
     {
-        public Question Question { get; set; }
+        //public Question Question { get; set; }
+        public string QuestionId { get; set; }
+        public string QuestionRef { get; set; }
+        public string QuestionUserResponse { get; set; }
         public string ValueToCompareWith { get; set; }
         public string Operator { get; set; }
         public bool Positive { get; set; }
@@ -19,17 +23,19 @@ namespace Questions.Utility
     [Serializable]
     public class Expressions
     {
-        List<Expression> _Expressions = new List<Expression>();
+        [JsonProperty]
         List<List<Expression>> _GroupedExpression = null;
         public void Add(IEnumerable<Expression> expressions)
         {
-            _Expressions.AddRange(expressions);
+            if (expressions == null) return;
+            List<Expression> expressioList = new List<Utility.Expression>();
+            expressioList.AddRange(expressions);
 
             List<List<Expression>> groupedList = new List<List<Expression>>();
             List<Expression> group = new List<Expression>();
-            foreach (var exp in _Expressions)
+            foreach (var exp in expressioList)
             {
-                var expString = $"{exp.Question.Ref}" + (exp.Positive ? " == " : " != ") + $"\"{exp.ValueToCompareWith}\"";
+                var expString = $"{exp.QuestionRef}" + (exp.Positive ? " == " : " != ") + $"\"{exp.ValueToCompareWith}\"";
                 if (exp.Operator == "and")
                 {
                     group = new List<Expression>();
@@ -44,11 +50,12 @@ namespace Questions.Utility
             _GroupedExpression = groupedList;
         }
 
-        public IEnumerable<Question> Questions
+        [JsonIgnore]
+        public IEnumerable<string> Questions
         {
             get
             {
-                return _Expressions.Select(s => s.Question).Distinct();
+                return _GroupedExpression.SelectMany(s => s.Select(t=>t.QuestionId)).Distinct();
             }
         }
 
@@ -57,6 +64,7 @@ namespace Questions.Utility
             Add(expressions);
         }
 
+        public string Expression { get { return this.ToString(); } }
         public override string ToString()
         {
             if (_GroupedExpression == null || _GroupedExpression.FirstOrDefault() == null) return String.Empty;
@@ -65,7 +73,7 @@ namespace Questions.Utility
                     var resultGroup =  s.Select(a =>
                         {
                             string op = a.Positive ? "is" : "is not";
-                            string value = $"Answer({a.Question.Ref}) {op} \"{a.ValueToCompareWith}\"";
+                            string value = $"Answer({a.QuestionRef}) {op} \"{a.ValueToCompareWith}\"";
                             return value;
                         });
                     return resultGroup.Aggregate((a,b)=>$"{a} or {b}");
@@ -87,7 +95,7 @@ namespace Questions.Utility
                     //These are all 'or' so return as soon as one 
                     if (exp.Positive)
                     {
-                        if (Fuzzy.AreSimilar(exp.Question.UserResponse.Display, exp.ValueToCompareWith))
+                        if (Fuzzy.AreSimilar(exp.QuestionUserResponse, exp.ValueToCompareWith))
                         {
                             expResult = true;
                             continue;
@@ -96,7 +104,7 @@ namespace Questions.Utility
                     }
                     else
                     {
-                        if (!Fuzzy.AreSimilar(exp.Question.UserResponse.Display, exp.ValueToCompareWith))
+                        if (!Fuzzy.AreSimilar(exp.QuestionUserResponse, exp.ValueToCompareWith))
                         {
                             expResult = true;
                             continue;
