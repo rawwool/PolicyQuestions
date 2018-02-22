@@ -31,7 +31,7 @@ namespace Questions.Model
         /// </summary>
         public int ChildSetCount = 0;
         public List<Question> Children { get; set; }
-        public List<Question> LogicalChildren { get; set; }
+        public List<string> LogicalChildren { get; set; }
         public string Ref { get; set; }
         public string Text { get; set; }
 
@@ -80,6 +80,8 @@ namespace Questions.Model
             }
         }
 
+        public string DisplayRule { get; internal set; }
+
         [NonSerialized]
         public Action<bool> ShowHide;
 
@@ -87,7 +89,7 @@ namespace Questions.Model
         {
             Id = Guid.NewGuid().ToString();
             Children = new List<Question>();
-            LogicalChildren = new List<Question>();
+            LogicalChildren = new List<string>();
             UserResponse = new ResponseChoice();
             ChildSetCount = 0;
         }
@@ -99,7 +101,7 @@ namespace Questions.Model
 
         public override string ToString()
         {
-            var children = this.LogicalChildren.Select(s => s.Ref);
+            var children = this.LogicalChildren.Select(s => s);
             string childrenRef = "None";
             if (children != null && children.FirstOrDefault() != null)
             {

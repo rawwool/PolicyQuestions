@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Questions.Model.Question;
 
 namespace Questions.Utility
 {
@@ -14,7 +15,6 @@ namespace Questions.Utility
         //public Question Question { get; set; }
         public string QuestionId { get; set; }
         public string QuestionRef { get; set; }
-        public string QuestionUserResponse { get; set; }
         public string ValueToCompareWith { get; set; }
         public string Operator { get; set; }
         public bool Positive { get; set; }
@@ -95,7 +95,7 @@ namespace Questions.Utility
                     //These are all 'or' so return as soon as one 
                     if (exp.Positive)
                     {
-                        if (Fuzzy.AreSimilar(exp.QuestionUserResponse, exp.ValueToCompareWith))
+                        if (Fuzzy.AreSimilar(GetUserResponse(exp.QuestionId).Display, exp.ValueToCompareWith))
                         {
                             expResult = true;
                             continue;
@@ -104,7 +104,7 @@ namespace Questions.Utility
                     }
                     else
                     {
-                        if (!Fuzzy.AreSimilar(exp.QuestionUserResponse, exp.ValueToCompareWith))
+                        if (!Fuzzy.AreSimilar(GetUserResponse(exp.QuestionId).Display, exp.ValueToCompareWith))
                         {
                             expResult = true;
                             continue;
@@ -118,6 +118,11 @@ namespace Questions.Utility
             }
 
             return groupResult;
+        }
+
+        private static ResponseChoice GetUserResponse(string questionId)
+        {
+            return Utility.Questions.GetQuestion(questionId).UserResponse;
         }
     }
 }

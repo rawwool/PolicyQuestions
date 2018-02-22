@@ -37,9 +37,16 @@ namespace Questions.Utility
 
                 tabs.ToList().ForEach(s =>
                 LoadWorksheet(listOfQUestions, GetWorksheet(dict, s)));
+                List<Question> allQuestions = new List<Question>();
 
-
-
+                allQuestions.AddRange(listOfQUestions);
+                allQuestions.AddRange(listOfQUestions.SelectMany(s => s.Children));
+                foreach (var question in allQuestions)
+                {
+                    question.Expressions = GetExpressionsForrPresentation(allQuestions, question.DisplayRule);
+                    question.Expressions.Questions.ToList().ForEach(s => allQuestions.First(q => q.Id == s).LogicalChildren.Add(question.Id));
+                }
+                
                 //rule of thumb for releasing com objects:
                 //  never use two dots, all COM objects must be referenced and released individually
                 //  ex: [somthing].[something].[something] is bad
@@ -134,6 +141,7 @@ namespace Questions.Utility
         {
             if (xlWorksheet == null) return;
 
+
             Excel.Range xlRange = null;
             try
             {
@@ -179,7 +187,8 @@ namespace Questions.Utility
                         //ConditionParent = conditionParent == null? null : listOfQUestions.FirstOrDefault(f => f.Ref.Trim() == conditionParent.Item1),//Assuming that question has already been loaded
                         //ParentResponseForInvokingThisChildQuestion = conditionParent == null ? null : conditionParent.Item2,
                         //ConditionForPresentation = GetConditionForPresentation(listOfQUestions, GetValue(xlRangeValues, i, displayRuleColumnIndex)),
-                        Expressions = GetExpressionsForrPresentation(listOfQUestions, displayRule),
+                        //Expressions = GetExpressionsForrPresentation(listOfQUestions, displayRule),
+                        DisplayRule = displayRule,
                         DataCaptureType = ConvertToType<enumDataCaptureType>(GetValue(xlRangeValues, i, dataTypeColumnIndex)),
                         APIRequestField = GetValue(xlRangeValues, i, apiRequestFieldColumnIndex),
                         APIResource = GetValue(xlRangeValues, i, apiResourceFieldIndex),
@@ -209,10 +218,8 @@ namespace Questions.Utility
 
                     question.HelpText = $"{GetValue(xlRangeValues, i, helpColumnIndex)}\nDisplay rule:{displayRule}";
                 }
-                foreach(var question in listOfQUestions)
-                {
-                    question.Expressions.Questions.ToList().ForEach(s => listOfQUestions.First(q => q.Id == s).LogicalChildren.Add(question));
-                }
+
+                
             }
             catch(InvalidOperationException ex)
             {
@@ -316,7 +323,6 @@ namespace Questions.Utility
                         Operator = op,
                         QuestionId = q.Id,
                         QuestionRef = q.Ref,
-                        QuestionUserResponse = q.UserResponse.Display,
                         ValueToCompareWith = response,
                         Positive = Fuzzy.AreSimilar(comparer, "is"),
                     };

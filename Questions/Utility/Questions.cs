@@ -319,7 +319,17 @@ namespace Questions.Utility
             return new string[] { "Empty" };
         }
 
-        public static IEnumerable<Question> GetQuestion(string category)
+        public static Question GetQuestion(string id)
+        {
+            var q = _Questions.FirstOrDefault(s => s.Id == id);
+            if (q == null)
+            {
+                q = _Questions.SelectMany(s => s.Children).FirstOrDefault(s => s.Id == id);
+            }
+            return q;
+        }
+
+        public static IEnumerable<Question> GetQuestions(string category)
         {
             string key = Fuzzy.GetBestMatch(_Questions.Select(s => s.Category), category);
             if (key != null)

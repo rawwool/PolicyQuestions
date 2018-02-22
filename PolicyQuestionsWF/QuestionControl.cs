@@ -70,24 +70,28 @@ namespace PolicyQuestionsWF
                 });
                 s.LogicalChildren.ForEach(c =>
                 {
-                    if (c.ShowHide != null)
+                    Question q = Questions.Utility.Questions.GetQuestion(c);
+                    if (q != null && q.ShowHide != null)
                     {
-                        c.ShowHide.Invoke(invoke && c.InvokeThisQuestion());
+                        q.ShowHide.Invoke(q.InvokeThisQuestion());
                     }
                 });
             });
             _Question.LogicalChildren.ForEach(s =>
             {
-                bool invoke = s.InvokeThisQuestion();
-                if (s.ShowHide != null)
+                Question q = Questions.Utility.Questions.GetQuestion(s);
+                bool invoke = q.InvokeThisQuestion();
+                if (q.ShowHide != null)
                 {
-                    s.ShowHide.Invoke(invoke);
+                    q.ShowHide.Invoke(invoke);
                 }
-                s.LogicalChildren.ForEach(c =>
+                q.LogicalChildren.ForEach(c =>
                 {
-                    if (c.ShowHide != null)
+                    Question r = Questions.Utility.Questions.GetQuestion(c);
+
+                    if (r.ShowHide != null)
                     {
-                        c.ShowHide.Invoke(invoke && c.InvokeThisQuestion());
+                        r.ShowHide.Invoke(invoke && r.InvokeThisQuestion());
                     }
                 });
             });
@@ -135,7 +139,10 @@ namespace PolicyQuestionsWF
             if (_Question != null)
             {
                 _Question.LogicalChildren.ForEach(s =>
-                    s.ShowHide(s.InvokeThisQuestion())
+                {
+                    Question q = Questions.Utility.Questions.GetQuestion(s);
+                    q.ShowHide(q.InvokeThisQuestion());
+                }
                     );
             }
         }

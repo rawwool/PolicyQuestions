@@ -15,7 +15,7 @@ namespace PolicyQuestionsWF
 {
     public partial class Form1 : Form
     {
-        const string QUESTIONS_FILE = "questions.json";
+        const string REFERENCEDATA_FILE_EXT = "refdata";
         public Form1()
         {
             InitializeComponent();
@@ -23,11 +23,13 @@ namespace PolicyQuestionsWF
             tableLayoutPanel2.Hide();
             splitContainer1.Hide();
 
-            if (Questions.Utility.Questions.DeserialiseQuestions(QUESTIONS_FILE))
+            var file = Directory.GetFiles(".", $"*.{REFERENCEDATA_FILE_EXT}").FirstOrDefault();
+
+            if (Questions.Utility.Questions.DeserialiseQuestions(file))
             {
                 LoadQuestions("About you");
                 PolulateTabs();
-                this.Text = GetCaption("Cached Reference Data");
+                this.Text = GetCaption(file);
             }
         }
 
@@ -159,7 +161,7 @@ namespace PolicyQuestionsWF
             this.flowLayoutPanel1.Hide(); 
             this.flowLayoutPanel1.Controls.Clear();
 
-            var questions = Questions.Utility.Questions.GetQuestion(group)
+            var questions = Questions.Utility.Questions.GetQuestions(group)
                .ToList();
             if (questions.FirstOrDefault() != null) label1.Text = questions.FirstOrDefault().Category; else label1.Text = string.Empty;
             questions.ForEach(s =>
@@ -180,18 +182,24 @@ namespace PolicyQuestionsWF
                     }
                     q.LogicalChildren.ForEach(r =>
                     {
-                        if (r.ShowHide != null)
+                        Question t = Questions.Utility.Questions.GetQuestion(r);
+                        if (t != null && t.ShowHide != null)
                         {
-                            r.ShowHide.Invoke(r.InvokeThisQuestion());
+                            t.ShowHide.Invoke(t.InvokeThisQuestion());
                         }
                     });
 
                 });
                 s.LogicalChildren.ForEach(q =>
                 {
-                    if (q.ShowHide != null)
+                    Question p = Questions.Utility.Questions.GetQuestion(q);
+                    if (p != null && p.ShowHide != null)
                     {
-                        q.ShowHide.Invoke(q.InvokeThisQuestion());
+                        p.ShowHide.Invoke(p.InvokeThisQuestion());
+                    }
+                    if (p.ShowHide != null)
+                    {
+                        p.ShowHide.Invoke(p.InvokeThisQuestion());
                     }
                 });
                 //if (s.ShowHide != null)
@@ -258,7 +266,7 @@ namespace PolicyQuestionsWF
 
                         LoadQuestions("About you");
                         PolulateTabs();
-                        Questions.Utility.Questions.SerilaiseQuestions(QUESTIONS_FILE);
+                        Questions.Utility.Questions.SerilaiseQuestions($"{Path.GetFileNameWithoutExtension(ofd.FileName)}.{REFERENCEDATA_FILE_EXT}");
                         this.Text = GetCaption(ofd.FileName);
                     }
                 }
