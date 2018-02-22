@@ -1,4 +1,5 @@
-﻿using Questions.Utility;
+﻿using Newtonsoft.Json;
+using Questions.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,10 +64,13 @@ namespace Questions.Model
 
         public string APIRequestField { get; set; }
 
+        [JsonIgnore]
         public bool HasArrayOfChildren {  get { return APIRequestField.TrimEnd().EndsWith("[]"); } }
 
         public string UIValdationMessage { get; set; }
         public string APIResource { get; set; }
+
+        [JsonIgnore]
         public string InternalInfo
         {
             get

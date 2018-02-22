@@ -46,7 +46,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.helpProvider1 = new System.Windows.Forms.HelpProvider();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.exportReferenceDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -100,8 +99,7 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.loadToolStripMenuItem,
-            this.toolStripSeparator1,
-            this.exportReferenceDataToolStripMenuItem});
+            this.toolStripSeparator1});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "&File";
@@ -242,13 +240,6 @@
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(249, 6);
             // 
-            // exportReferenceDataToolStripMenuItem
-            // 
-            this.exportReferenceDataToolStripMenuItem.Name = "exportReferenceDataToolStripMenuItem";
-            this.exportReferenceDataToolStripMenuItem.Size = new System.Drawing.Size(252, 22);
-            this.exportReferenceDataToolStripMenuItem.Text = "&Export reference data to clipboard";
-            this.exportReferenceDataToolStripMenuItem.Click += new System.EventHandler(this.exportReferenceDataToolStripMenuItem_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
@@ -295,7 +286,6 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripMenuItem exportReferenceDataToolStripMenuItem;
     }
 }
 

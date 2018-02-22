@@ -12,6 +12,8 @@ namespace Questions.Utility
 {
     public class APIRequest
     {
+        public bool IsComplete { get; set; }
+        public string ValidationError { get; set; }
         public string RelativeURL { get; set; }
         public string JSONBody { get; set; }
 
@@ -101,12 +103,23 @@ namespace Questions.Utility
             var questions = new List<Question>();
             questions.AddRange(_Questions.SelectMany(s => s.Children));
             questions.AddRange(_Questions);
-           // var groups = _Questions.GroupBy(s => s.APIResource);
+            // var groups = _Questions.GroupBy(s => s.APIResource);
             return questions
                 .GroupBy(s => s.APIResource)
                 .OrderBy(s => s.Key)
-                .Select(s => new { Resource = s.Key, JSON = s.AsJSON() /*GetResponseJSON(s)*/ })
-                .Select(s => new APIRequest() { RelativeURL = s.Resource, JSONBody = s.JSON });
+                //.Select(s => new { Resource = s.Key, JSON = s.AsJSON() /*GetResponseJSON(s)*/ })
+                .Select(s =>
+                {
+                    var unAnsweredQuestions = s.Where(d => d.Type == enumType.Mandaory && d.UserResponse == null);
+                    var apir = new APIRequest()
+                    {
+                        RelativeURL = s.Key,
+                        JSONBody = s.AsJSON(),
+                        IsComplete = unAnsweredQuestions.FirstOrDefault() == null,
+                        ValidationError = unAnsweredQuestions.FirstOrDefault() == null ? "" : "Unanswered questions: " + unAnsweredQuestions.Select(d => d.Ref).Aggregate((a, b) => $"{a}, {b}")
+                    };
+                    return apir;
+                });
                 //.Select(s => $"{s.Resource}{Environment.NewLine}{s.JSON}")
                 //.Aggregate((a, b) => $"{a}{Environment.NewLine}{Environment.NewLine}{b}");                
         }

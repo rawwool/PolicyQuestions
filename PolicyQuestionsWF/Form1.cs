@@ -15,7 +15,7 @@ namespace PolicyQuestionsWF
 {
     public partial class Form1 : Form
     {
-        const string REFERENCEDATA_FILE_EXT = "refdata";
+        const string REFERENCEDATA_FILE_EXT = ".refdata";
         public Form1()
         {
             InitializeComponent();
@@ -23,13 +23,22 @@ namespace PolicyQuestionsWF
             tableLayoutPanel2.Hide();
             splitContainer1.Hide();
 
-            var file = Directory.GetFiles(".", $"*.{REFERENCEDATA_FILE_EXT}").FirstOrDefault();
+            DirectoryInfo info = new DirectoryInfo(".");
+            var file = info
+                .GetFiles()
+                .Where(s => s.Extension == REFERENCEDATA_FILE_EXT)
+                .OrderByDescending(p => p.CreationTime)
+                .FirstOrDefault();
 
-            if (Questions.Utility.Questions.DeserialiseQuestions(file))
+            //var file = Directory.GetFiles(".", $"*.{REFERENCEDATA_FILE_EXT}")
+            //    .OrderBy(s=>s)
+            //    .FirstOrDefault(s=>s);
+
+            if (file != null && Questions.Utility.Questions.DeserialiseQuestions(file.FullName))
             {
                 LoadQuestions("About you");
                 PolulateTabs();
-                this.Text = GetCaption(file);
+                this.Text = GetCaption(file.FullName);
             }
         }
 
@@ -142,8 +151,16 @@ namespace PolicyQuestionsWF
         {
             if (sender is LinkLabel && (sender as LinkLabel).Tag is Questions.Utility.APIRequest)
             {
-                //MessageBox.Show(((sender as LinkLabel).Tag as Questions.Utility.APIRequest).JSONBody);
-                ProcessRequest((sender as LinkLabel).Text, ((sender as LinkLabel).Tag as Questions.Utility.APIRequest).JSONBody);
+                var req = ((sender as LinkLabel).Tag as Questions.Utility.APIRequest);
+                if (req.IsComplete)
+                {
+                    //MessageBox.Show(((sender as LinkLabel).Tag as Questions.Utility.APIRequest).JSONBody);
+                    ProcessRequest((sender as LinkLabel).Text, req.JSONBody);
+                }
+                else
+                {
+                    MessageBox.Show(req.ValidationError);
+                }
             }
         }
 
